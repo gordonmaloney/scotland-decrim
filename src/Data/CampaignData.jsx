@@ -26,6 +26,7 @@ export const ALL_CAMPAIGNS = [
 				},
 			],
 			subject: "Divest from apartheid!",
+			bcc: "",
 			template: `I am writing as a concerned constituent regarding your role on the Lothian Pension Fund’s pensions committee and to express my strong support for the Edinburgh Time to Divest Campaign. I agree that there is a moral imperative to divest from Lockheed Martin, Northrop Grumman, General Dynamics, Caterpillar, Cisco and Siemens. Over 40,000 Palestinians have been killed and over 77,000 wounded in Israel’s relentless attack on Gaza whilst thousands are detained in the West Bank.
 
 The advisory opinion from the International Court of Justice in July has now rendered beyond doubt Israel’s decades-long occupation of the Palestinian territories as illegal and amounting to apartheid. By continuing to hold investments in companies complicit in Israel’s illegal occupation, the Lothian Pension Fund is flagrantly neglecting its ESG responsibilities.

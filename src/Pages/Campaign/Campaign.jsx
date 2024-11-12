@@ -52,22 +52,30 @@ const Campaign = ({campaign}) => {
 						prompts={prompts}
 						setPrompts={setPrompts}
 					/>
-					<Button
-						//button disabled if no admindivisions - currently ward only! - or missing required Qs
-						disabled={
-							!adminDivisions.ward ||
-							prompts.some(
-								(prompt) =>
-									prompt.required &&
-									(prompt.answer === null ||
-										prompt.answer === undefined ||
-										prompt.answer === "")
-							)
-						}
-						onClick={() => setStage((old) => old + 1)}
+
+					<div
+						style={{
+							display: "flex",
+							width: "100%",
+							justifyContent: "flex-end",
+						}}
 					>
-						Next
-					</Button>
+						<Button
+							disabled={
+								!adminDivisions.ward ||
+								prompts.some(
+									(prompt) =>
+										prompt.required &&
+										(prompt.answer === null ||
+											prompt.answer === undefined ||
+											prompt.answer === "")
+								)
+							}
+							onClick={() => setStage((old) => old + 1)}
+						>
+							Next
+						</Button>
+					</div>
 				</>
 			)}
 
@@ -78,9 +86,10 @@ const Campaign = ({campaign}) => {
 						campaign={campaign}
 						prompts={prompts}
 						postcode={postcode}
+						setStage={setStage}
 					/>
 
-					<Button onClick={() => setStage((old) => old - 1)}>Back</Button>
+			
 				</>
 			)}
 		</div>

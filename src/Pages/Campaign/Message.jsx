@@ -7,17 +7,26 @@ import {
 	AccordionSummary,
 	AccordionDetails,
 	Box,
+	Button,
+	useMediaQuery,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 
+import { SendModal } from "./SendModal";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
+import { BtnStyleSmall, BtnStyle } from "../../MUIStyles";
 import { TextFieldStyle } from "../../MUIStyles";
 import EditableDiv from "../../Components/EditableDiv";
 
 import { EDINBURGHCLLRS } from "../../Data/EDINBURGHCLLRS";
 
-const Message = ({ campaign, prompts, adminDivisions, postcode }) => {
+
+
+
+
+const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	//TEMP HERE - FOR TIME TO DIVEST ONLY:
 
 	const PensionsCttee = [
@@ -40,12 +49,6 @@ const Message = ({ campaign, prompts, adminDivisions, postcode }) => {
 	const [newTemplate, setNewTemplate] = useState(
 		campaign.template + `\n${postcode}`
 	);
-
-	// Helper function to get answers from `prompts`
-	const getPromptAnswerById = (id) => {
-		const prompt = prompts.find((p) => p.id === id);
-		return prompt ? prompt.answer : "";
-	};
 
 	const createPromptAnswers = (prompts) => {
 		return prompts.reduce((acc, prompt) => {
@@ -179,6 +182,65 @@ const Message = ({ campaign, prompts, adminDivisions, postcode }) => {
 		}
 	}, []);
 
+	const [sent, setSent] = useState(false);
+	const [noClient, setNoClient] = useState(false);
+	//modals
+	const [isSendOpen, setIsSendOpen] = useState(false);
+	const onSendClose = () => {
+		setIsSendOpen(false);
+		setSent(false);
+    };
+    const Mobile = useMediaQuery("(max-width:900px)");
+
+    
+
+
+    
+
+    const handleSend = (prop) => {
+    
+        const bcc = campaign.bcc
+	//check for channel, compile everything
+
+	if (campaign.channel == "email" && prop !== "gmail" && prop !== "yahoo") {
+		let sendLink = `mailto:${messaging.map(
+			(targ) => targ.email + `,`
+		)}?subject=${encodeURIComponent(newSubject)}&bcc=${
+			bcc ? bcc : ""
+		}&body=${encodeURIComponent(newTemplate)}`;
+
+		window.open(sendLink);
+	}
+
+	if (campaign.channel == "email" && prop == "gmail") {
+		let sendLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${messaging.map(
+			(targ) => targ.email + `,`
+		)}&su=${encodeURIComponent(newSubject)}&bcc=${
+			bcc ? bcc : ""
+		}&body=${encodeURIComponent(newTemplate)}`;
+		window.open(sendLink);
+	}
+
+	if (campaign.channel == "email" && prop == "yahoo") {
+		let sendLink = `http://compose.mail.yahoo.com/?To=${messaging.map(
+			(targ) => targ.email + `,`
+		)}&Subject=${encodeURIComponent(newSubject)}&bcc=${
+			bcc ? bcc : ""
+		}&Body=${encodeURIComponent(
+			newTemplate.replace("%", "%25").replace(/\n/g, "%0A") + "%0A%0A"
+		)}`;
+		window.open(sendLink);
+	}
+
+	setTimeout(() => {
+		//setSent(true);
+	}, [2000]);
+
+	//onSendClose();
+
+	//setIsShareOpen(true);
+};
+    
 	return (
 		<div>
 			{campaign.channel == "email" && (
@@ -378,6 +440,141 @@ const Message = ({ campaign, prompts, adminDivisions, postcode }) => {
 					campaign.channel == "twitter" && {
 						maxLength: campaign.channel == "twitter" && 280,
 					}
+				}
+			/>
+
+			<div
+				style={{
+					display: "flex",
+					width: "100%",
+					justifyContent: "space-between",
+				}}
+			>
+				<Button onClick={() => setStage((old) => old - 1)}>Back</Button>
+
+				<Button
+					sx={{ ...BtnStyleSmall, float: "right" }}
+					onClick={() => setIsSendOpen(true)}
+				>
+					SEND
+				</Button>
+			</div>
+
+			<SendModal
+				isOpen={isSendOpen}
+				onClose={() => {
+					onSendClose();
+					setNoClient(false);
+				}}
+				title={!sent ? "Send your message" : "What now?"}
+				body={
+					noClient ? (
+						<p>
+							If you don't use an email app, or the buttons on the last page
+							didn't work, you can use these buttons to copy and paste the
+							recipients, subject, and body of your email to whatever client you
+							use:
+							<br />
+							<br />
+							<Grid
+								container
+								spacing={1}
+								justifyContent={"center"}
+								alignContent={"center"}
+							>
+								<Grid item sm={4} xs={12}>
+									<center>
+										<Button
+											sx={BtnStyleSmall}
+											onClick={() =>
+												navigator.clipboard.writeText(
+													`${messaging.map((targ) => targ.email + `,`)}  ${
+														campaign.bcc
+													} `
+												)
+											}
+										>
+											Copy recipients
+										</Button>
+									</center>
+								</Grid>
+
+								<Grid item sm={4} xs={12}>
+									<center>
+										{" "}
+										<Button
+											sx={BtnStyleSmall}
+											onClick={() => navigator.clipboard.writeText(newSubject)}
+										>
+											Copy subject
+										</Button>
+									</center>
+								</Grid>
+								<Grid item sm={4} xs={12}>
+									<center>
+										{" "}
+										<Button
+											sx={BtnStyleSmall}
+											onClick={() => navigator.clipboard.writeText(newTemplate)}
+										>
+											Copy email body
+										</Button>
+									</center>
+								</Grid>
+							</Grid>
+						</p>
+					) : !sent ? (
+						<p>
+							You're almost there. Press the button below to open your{" "}
+							{campaign.channel == "Email" ? "email" : "Twitter"} client, and
+							the message will be pre-filled in there for you. Then just hit
+							send in there to fire it off.
+							<br />{" "}
+							<center>
+								<Button
+									onClick={() => handleSend()}
+									style={{ ...BtnStyle, marginTop: "5px" }}
+								>
+									Send {campaign.channel == "email" ? "email" : "tweet"}
+								</Button>
+							</center>
+							{!Mobile && campaign.channel == "email" && (
+								<>
+									<br />
+									If you use Gmail or Yahoo Mail, you can use these button to
+									send the message from your browser:
+									<br />
+									<div
+										style={{ display: "flex", justifyContent: "space-around" }}
+									>
+										<Button
+											onClick={() => handleSend("gmail")}
+											style={{ ...BtnStyle, marginTop: "5px" }}
+										>
+											Send via Gmail
+										</Button>
+										<Button
+											onClick={() => handleSend("yahoo")}
+											style={{ ...BtnStyle, marginTop: "5px" }}
+										>
+											Send via Yahoo
+										</Button>
+									</div>{" "}
+								</>
+							)}
+							<br />
+							<span style={{ fontSize: "12px" }}>
+								<em>
+									Not working?{" "}
+									<span onClick={() => setNoClient(true)}>
+										<u>Copy & paste instead.</u>
+									</span>
+								</em>
+							</span>
+						</p>
+					) : (
+						<></>
+					)
 				}
 			/>
 		</div>

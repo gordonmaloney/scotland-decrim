@@ -4,12 +4,14 @@ import CampaignTopLevel from './Pages/Campaign/CampaignTopLevel';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-          <Route path="/act/:campaignId" element={<CampaignTopLevel />} />
-      </Routes>
-    </Router>
-  );
+		<div className="content">
+			<Router>
+				<Routes>
+					<Route path="/act/:campaignId" element={<CampaignTopLevel />} />
+				</Routes>
+			</Router>
+		</div>
+	);
 }
 
 export default App;
