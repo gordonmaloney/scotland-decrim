@@ -1,13 +1,35 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.editableDivBox:hover {
+    outline: 1px solid rgba(0, 0, 0, .8) !important;
+    outline-offset: -1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.editableDivBox:focus-within {
+    outline: 2.3px solid #537A8B !important;
+    outline-offset: -2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+.fadeHighlight {
+    color: inherit;
+    animation-name: fadeHighlight;
+    animation-duration: 8s;
+}
+
+@keyframes fadeHighlight {
+    0% {
+        background-color: yellow;
+    }
+
+    50% {
+        background-color: yellow;
+    }
+
+    100% {
+        color: inherit;
+    }
 }
