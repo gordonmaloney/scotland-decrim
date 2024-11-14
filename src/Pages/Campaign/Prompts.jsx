@@ -25,8 +25,9 @@ const Prompts = ({ prompts, setPrompts }) => {
 			{prompts.map((prompt) => {
 				return (
 					<div key={prompt.id}>
-						{prompt.question} {prompt.required && "*"}
-						<br />
+						<div className="promptQ">
+							{prompt.question} {prompt.required && "*"}
+						</div>
 						{
 							//textfield for text type questions
 							prompt.answerType == "text" && (
@@ -51,7 +52,7 @@ const Prompts = ({ prompts, setPrompts }) => {
 									value={prompt.answer}
 									onChange={(e) => handlePromptAnswerChange(e, prompt)}
 								>
-									<MenuItem value="noOptionSelected">Select...</MenuItem>
+									<MenuItem value={null}>Select...</MenuItem>
 									<MenuItem value={true}>Yes</MenuItem>
 									<MenuItem value={false}>No</MenuItem>
 								</TextField>

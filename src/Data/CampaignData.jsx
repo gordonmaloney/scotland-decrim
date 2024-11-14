@@ -3,11 +3,12 @@ export const ALL_CAMPAIGNS = [
 		campaignId: "timetodivest",
 		campaign: {
 			id: "timetodivest",
-			title: "Time to Divest",
+			title: "Demand LPF divest from apartheid",
 			host: "Time to Divest Edinburgh",
 			channel: "email",
 			target: "custom",
-			blurb: "We ask that you write a regular letter to your Councillors to urge them to support the divestment of companies complicit in Israel’s violations of Palestinian rights from the Lothian Pension Fund.",
+			blurb:
+				`The Lothian Pension Fund invests millions of pounds of council-workers' money in propping up Israeli apartheid. Will you write to the pensions committee and demand they vote to divest?`,
 			link: "https://www.timetodivest.net/lapf-scotland/lothian/",
 			prompts: [
 				{
@@ -19,7 +20,7 @@ export const ALL_CAMPAIGNS = [
 				},
 				{
 					id: "yourname",
-					question: "Your name",
+					question: "Your name:",
 					answerType: "text",
 					required: true,
 					answer: null,

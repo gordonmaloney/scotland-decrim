@@ -9,6 +9,7 @@ import {
 	Box,
 	Button,
 	useMediaQuery,
+	Tooltip,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
@@ -22,13 +23,8 @@ import EditableDiv from "../../Components/EditableDiv";
 
 import { EDINBURGHCLLRS } from "../../Data/EDINBURGHCLLRS";
 
-
-
-
-
 const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	//TEMP HERE - FOR TIME TO DIVEST ONLY:
-
 	const PensionsCttee = [
 		"Mandy Watt",
 		"Adam Nols-McVey",
@@ -36,13 +32,37 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		"Steve Burgess",
 		"Neil Ross",
 	];
-	const [messaging, setMessaging] = useState([
-		...EDINBURGHCLLRS.filter(
-			(cllr) =>
-				cllr.ward == adminDivisions.ward || PensionsCttee.includes(cllr.name)
-		),
-	]);
+
+	const [messaging, setMessaging] = useState([]);
 	const [notMessaging, setNotMessaging] = useState([]);
+
+	useEffect(() => {
+		//get ward councillors
+		const wardCouncillors = EDINBURGHCLLRS.filter(
+			(cllr) => cllr.ward === adminDivisions.ward
+		);
+
+		// Filter to see if any ward councillors are on the pensions committee
+		const wardPensionsMembers = wardCouncillors.filter((cllr) =>
+			PensionsCttee.includes(cllr.name)
+		);
+		if (wardPensionsMembers.length > 0) {
+			// If there are councillors on the committee in the user's ward, set them as the messaging targets
+			setMessaging(wardPensionsMembers);
+		} else {
+			// If no councillors in the user's ward are on the committee, choose a random member from the pensions committee
+			const randomPensionsMemberName =
+				PensionsCttee[Math.floor(Math.random() * PensionsCttee.length)];
+
+			// Find the full details of the randomly selected committee member
+			const randomPensionsMember = EDINBURGHCLLRS.find(
+				(cllr) => cllr.name === randomPensionsMemberName
+			);
+
+			// Set the random committee member as the messaging target
+			setMessaging([randomPensionsMember]);
+		}
+	}, [adminDivisions]);
 
 	const promptsChanged = true;
 	const { template } = campaign;
@@ -189,58 +209,69 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	const onSendClose = () => {
 		setIsSendOpen(false);
 		setSent(false);
-    };
-    const Mobile = useMediaQuery("(max-width:900px)");
+	};
+	const Mobile = useMediaQuery("(max-width:900px)");
 
-    
+	const handleSend = (prop) => {
+		const bcc = campaign.bcc;
+		//check for channel, compile everything
 
+		if (campaign.channel == "email" && prop !== "gmail" && prop !== "yahoo") {
+			let sendLink = `mailto:${messaging.map(
+				(targ) => targ.email + `,`
+			)}?subject=${encodeURIComponent(newSubject)}&bcc=${
+				bcc ? bcc : ""
+			}&body=${encodeURIComponent(newTemplate)}`;
 
-    
+			window.open(sendLink);
+		}
 
-    const handleSend = (prop) => {
-    
-        const bcc = campaign.bcc
-	//check for channel, compile everything
+		if (campaign.channel == "email" && prop == "gmail") {
+			let sendLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${messaging.map(
+				(targ) => targ.email + `,`
+			)}&su=${encodeURIComponent(newSubject)}&bcc=${
+				bcc ? bcc : ""
+			}&body=${encodeURIComponent(newTemplate)}`;
+			window.open(sendLink);
+		}
 
-	if (campaign.channel == "email" && prop !== "gmail" && prop !== "yahoo") {
-		let sendLink = `mailto:${messaging.map(
-			(targ) => targ.email + `,`
-		)}?subject=${encodeURIComponent(newSubject)}&bcc=${
-			bcc ? bcc : ""
-		}&body=${encodeURIComponent(newTemplate)}`;
+		if (campaign.channel == "email" && prop == "yahoo") {
+			let sendLink = `http://compose.mail.yahoo.com/?To=${messaging.map(
+				(targ) => targ.email + `,`
+			)}&Subject=${encodeURIComponent(newSubject)}&bcc=${
+				bcc ? bcc : ""
+			}&Body=${encodeURIComponent(
+				newTemplate.replace("%", "%25").replace(/\n/g, "%0A") + "%0A%0A"
+			)}`;
+			window.open(sendLink);
+		}
 
-		window.open(sendLink);
-	}
+		setTimeout(() => {
+			setSent(true);
+		}, [2000]);
 
-	if (campaign.channel == "email" && prop == "gmail") {
-		let sendLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${messaging.map(
-			(targ) => targ.email + `,`
-		)}&su=${encodeURIComponent(newSubject)}&bcc=${
-			bcc ? bcc : ""
-		}&body=${encodeURIComponent(newTemplate)}`;
-		window.open(sendLink);
-	}
+		//onSendClose();
 
-	if (campaign.channel == "email" && prop == "yahoo") {
-		let sendLink = `http://compose.mail.yahoo.com/?To=${messaging.map(
-			(targ) => targ.email + `,`
-		)}&Subject=${encodeURIComponent(newSubject)}&bcc=${
-			bcc ? bcc : ""
-		}&Body=${encodeURIComponent(
-			newTemplate.replace("%", "%25").replace(/\n/g, "%0A") + "%0A%0A"
-		)}`;
-		window.open(sendLink);
-	}
+		//setIsShareOpen(true);
+	};
 
-	setTimeout(() => {
-		//setSent(true);
-	}, [2000]);
+	const [copied, setCopied] = useState(false);
 
-	//onSendClose();
+	const handleCopy = async () => {
+		try {
+			// Copy the current page URL to the clipboard
+			await navigator.clipboard.writeText(window.location.href);
+			// Show the tooltip with "Copied" message
+			setCopied(true);
+			// Hide the tooltip after 3 seconds
+			setTimeout(() => {
+				setCopied(false);
+			}, 2000);
+		} catch (err) {
+			console.error("Failed to copy: ", err);
+		}
+	};
 
-	//setIsShareOpen(true);
-};
-    
 	return (
 		<div>
 			{campaign.channel == "email" && (
@@ -249,6 +280,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 						sx={{
 							position: "relative",
 							marginTop: 2,
+							marginBottom: "14px",
 
 							width: "100%",
 							"&:focus-within .paperBorder": {
@@ -262,17 +294,17 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 								fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
 
 								position: "absolute",
-								top: "-8px",
+								top: "-9px",
 								left: "8px",
 								fontSize: "0.78rem",
 								fontWeight: "320",
 								color: "rgba(0,0,0,0.6)",
-								backgroundColor: "#fff",
+								backgroundColor: "rgba(246, 243, 246, 1)",
 								padding: "0 5px",
 								transition: "top 0.2s, font-size 0.2s, color 0.2s",
 							}}
 						>
-							To:
+							To
 						</label>
 
 						<Paper
@@ -288,7 +320,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 								<Chip
 									label={msp.name + " - " + msp.party}
 									variant="outlined"
-									sx={{ backgroundColor: "white", margin: "2px" }}
+									sx={{ margin: "2px" }}
 									onClick={() => {
 										setMessaging((prev) =>
 											prev.filter((prevTarget) => prevTarget.name !== msp.name)
@@ -402,12 +434,6 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					/>
 				</>
 			)}
-			{Object.values(promptAnswers).filter((str) => str !== "noOptionSelected")
-				.length > 0 && (
-				<span style={{ marginTop: "6px" }}>
-					Make sure to check that your answers to the questions don't look odd!
-				</span>
-			)}
 
 			<div style={{ position: "relative" }}>
 				<div style={{}}>
@@ -426,7 +452,14 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					/>
 				</div>
 			</div>
-
+			{Object.values(promptAnswers).filter((str) => str !== "noOptionSelected")
+				.length > 0 && (
+				<div style={{ marginTop: "-10px", marginBottom: "10px" }}>
+					<em>
+						Make sure to check that your answers to the questions look ok!
+					</em>
+				</div>
+			)}
 			<TextField
 				id="template"
 				fullWidth
@@ -450,12 +483,11 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					justifyContent: "space-between",
 				}}
 			>
-				<Button onClick={() => setStage((old) => old - 1)}>Back</Button>
+				<Button sx={BtnStyleSmall} onClick={() => setStage((old) => old - 1)}>
+					Back
+				</Button>
 
-				<Button
-					sx={{ ...BtnStyleSmall, float: "right" }}
-					onClick={() => setIsSendOpen(true)}
-				>
+				<Button sx={BtnStyleSmall} onClick={() => setIsSendOpen(true)}>
 					SEND
 				</Button>
 			</div>
@@ -526,14 +558,14 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					) : !sent ? (
 						<p>
 							You're almost there. Press the button below to open your{" "}
-							{campaign.channel == "Email" ? "email" : "Twitter"} client, and
+							{campaign.channel == "email" ? "email" : "Twitter"} client, and
 							the message will be pre-filled in there for you. Then just hit
 							send in there to fire it off.
 							<br />{" "}
 							<center>
 								<Button
 									onClick={() => handleSend()}
-									style={{ ...BtnStyle, marginTop: "5px" }}
+									style={{ ...BtnStyleSmall, marginTop: "5px" }}
 								>
 									Send {campaign.channel == "email" ? "email" : "tweet"}
 								</Button>
@@ -549,13 +581,13 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 									>
 										<Button
 											onClick={() => handleSend("gmail")}
-											style={{ ...BtnStyle, marginTop: "5px" }}
+											style={{ ...BtnStyleSmall, marginTop: "5px" }}
 										>
 											Send via Gmail
 										</Button>
 										<Button
 											onClick={() => handleSend("yahoo")}
-											style={{ ...BtnStyle, marginTop: "5px" }}
+											style={{ ...BtnStyleSmall, marginTop: "5px" }}
 										>
 											Send via Yahoo
 										</Button>
@@ -573,7 +605,70 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 							</span>
 						</p>
 					) : (
-						<></>
+						<>
+							<p>
+								Nice one! Will you now{" "}
+								<b>take a moment to share the campaign with a few friends?</b>{" "}
+								You can use the buttons below:
+							</p>
+							<div style={{ display: "flex", justifyContent: "space-around" }}>
+								<Button
+									sx={BtnStyleSmall}
+									target="_blank"
+									href={`http://wa.me/?text=${encodeURI(
+										"Hey! I've just taken part in this campaign - check it out here: " +
+											campaign.title +
+											" " +
+											window.location.href
+									)}`}
+								>
+									Share on WhatsApp
+								</Button>
+								<Button
+									sx={BtnStyleSmall}
+									target="_blank"
+									href={`https://bsky.app/intent/compose?text=${encodeURI(
+										campaign.title + " " + window.location.href
+									)}`}
+								>
+									Share on BlueSky
+								</Button>
+							</div>
+
+							<p>
+								You can also just{" "}
+								<Tooltip
+									open={copied}
+									title="Copied"
+									disableHoverListener
+									disableFocusListener
+									disableTouchListener
+									placement="top"
+									PopperProps={{
+										modifiers: [
+											{
+												name: "offset",
+												options: {
+													offset: [0, -14], // Adjust the second value to move tooltip closer/further
+												},
+											},
+										],
+									}}
+								>
+									<span
+										onClick={handleCopy}
+										style={{
+											cursor: "pointer",
+											color: "inherit",
+											textDecoration: "underline",
+										}}
+									>
+										click here
+									</span>
+								</Tooltip>{" "}
+								to copy the link and share it with your friends!
+							</p>
+						</>
 					)
 				}
 			/>

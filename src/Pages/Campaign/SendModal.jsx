@@ -13,7 +13,7 @@ const ModalStyle = {
 	maxWidth: "90vw",
 	margin: "0 auto 0 auto",
 	padding: "15px",
-	backgroundColor: "rgba(255, 241, 208, 0.8)",
+	backgroundColor: "#F6F3F6",
 	borderRadius: "15px",
 	backdropFilter: "blur(5px)",
 };

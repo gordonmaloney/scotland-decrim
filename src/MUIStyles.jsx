@@ -1,26 +1,31 @@
 export const BtnStyle = {
-    fontSize: 'large',
-  fontFamily: "Fjalla One",
-  borderRadius: "10px",
-  color: "#FFF1D0",
-  backgroundColor: "#5A788B",
-  "&:hover, &:active": { backgroundColor: "#FFF1D0", color: "#5A788B" },
+	fontSize: "large",
+	fontWeight: "600",
+	borderRadius: "10px",
+	color: "#F6F3F6",
+	backgroundColor: "#3C5A14",
+	border: "1px solid #3C5A14",
+	"&:hover, &:active": { backgroundColor: "#F6F3F6", color: "#3C5A14" },
+  "&:disabled": {color: 'red'}
 };
-
 
 export const BtnStyleSmall = {
 	fontSize: "medium",
-	fontFamily: "Fjalla One",
+	fontWeight: "600",
 	borderRadius: "10px",
-	color: "#FFF1D0",
-	backgroundColor: "#5A788B",
-	"&:hover, &:active": { backgroundColor: "#FFF1D0", color: "#5A788B" },
+	color: "#F6F3F6",
+	backgroundColor: "#3C5A14",
+	border: "1px solid #3C5A14",
+	"&:hover, &:active": { backgroundColor: "#F6F3F6", color: "#3C5A14" },
+	"&:disabled": { color: "#a7a7a7", backgroundColor: "#4e5248" },
 };
 
 
 
 export const TextFieldStyle = {
-  marginTop: "8px",
+  backgroundColor: 'rgba(0,0,0,0)',
+  marginBottom: '12px',
+  marginTop: "3px",
   "& label.Mui-focused": {
     color: "#537A8B",
   },

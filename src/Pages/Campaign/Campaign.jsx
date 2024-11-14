@@ -5,14 +5,12 @@ import FetchTarget from "./FetchTarget";
 
 import Prompts from "./Prompts";
 import Message from "./Message";
-import { Button } from "@mui/material";
+import { Tooltip, Button } from "@mui/material";
+import { BtnStyleSmall } from "../../MUIStyles";
 
-const Campaign = ({campaign}) => {
+const Campaign = ({ campaign, stage, setStage}) => {
 
-	const [stage, setStage] = useState(0);
-	//STAGES: 0) target/prompts | 1) message
-
-	const [postcode, setPostcode] = useState('')
+	const [postcode, setPostcode] = useState("");
 
 	const [adminDivisions, setAdminDivisions] = useState({
 		ward: "",
@@ -34,12 +32,35 @@ const Campaign = ({campaign}) => {
 		}
 	}, [campaign]);
 
+	const [tooltipOpen, setTooltipOpen] = useState(false);
+	const handleButtonClick = () => {
+		if (
+			!adminDivisions.ward ||
+			prompts.some(
+				(prompt) =>
+					prompt.required &&
+					(prompt.answer === null ||
+						prompt.answer === undefined ||
+						prompt.answer === "")
+			)
+		) {
+			setTooltipOpen(true);
+			// Automatically close tooltip after 3 seconds
+			setTimeout(() => {
+				setTooltipOpen(false);
+			}, 3000);
+		}
+	};
+
+
 
 
 	return (
 		<div>
 			{stage == 0 && (
 				<>
+					
+					<h3 style={{margin: '0 0 10px 0', }}>A few quick questions...</h3>
 					<FetchTarget
 						postcode={postcode}
 						setPostcode={setPostcode}
@@ -60,21 +81,33 @@ const Campaign = ({campaign}) => {
 							justifyContent: "flex-end",
 						}}
 					>
-						<Button
-							disabled={
-								!adminDivisions.ward ||
-								prompts.some(
-									(prompt) =>
-										prompt.required &&
-										(prompt.answer === null ||
-											prompt.answer === undefined ||
-											prompt.answer === "")
-								)
-							}
-							onClick={() => setStage((old) => old + 1)}
+						<Tooltip
+							title="Make sure you have filled out all the required fields marked with *"
+							open={tooltipOpen}
+							disableHoverListener
+							disableFocusListener
+							disableTouchListener
+							placement="left"
 						>
-							Next
-						</Button>
+							<span onClick={handleButtonClick}>
+								<Button
+									sx={BtnStyleSmall}
+									disabled={
+										!adminDivisions.ward ||
+										prompts.some(
+											(prompt) =>
+												prompt.required &&
+												(prompt.answer === null ||
+													prompt.answer === undefined ||
+													prompt.answer === "")
+										)
+									}
+									onClick={() => setStage((old) => old + 1)}
+								>
+									Next
+								</Button>{" "}
+							</span>
+						</Tooltip>
 					</div>
 				</>
 			)}
@@ -88,8 +121,6 @@ const Campaign = ({campaign}) => {
 						postcode={postcode}
 						setStage={setStage}
 					/>
-
-			
 				</>
 			)}
 		</div>

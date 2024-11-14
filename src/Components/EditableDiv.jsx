@@ -51,22 +51,23 @@ const EditableDiv = ({
 					padding: "10px",
 					position: "relative",
 					borderRadius: "4px",
+					marginBottom: "12px",
 				}}
 				className="editableDivBox"
 			>
 				<label
 					htmlFor="editableDiv"
 					style={{
+						fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+
 						position: "absolute",
-						top: "-10px",
-						left: "10px",
-						background: "#fff",
-						paddingLeft: "5px",
-						paddingRight: "5px",
-						fontSize: "0.75rem",
-						fontFamily: "Roboto",
-						color: "rgba(0, 0, 0, 0.54)",
-						letterSpacing: "0.00938em",
+						top: "-9px",
+						left: "8px",
+						fontSize: "0.78rem",
+						fontWeight: "320",
+						color: "rgba(0,0,0,0.6)",
+						backgroundColor: "rgba(246, 243, 246, 1)",
+						padding: "0 5px",
 					}}
 				>
 					{label}
@@ -75,7 +76,7 @@ const EditableDiv = ({
 					style={{
 						outline: "0px solid transparent",
 						color: "black",
-						fontFamily: "Roboto",
+						fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
 						padding: "5px",
 						minHeight: "200px",
 						height: "auto",
