@@ -21,6 +21,17 @@ export const BtnStyleSmall = {
 };
 
 
+export const CheckBoxStyle = {
+	color: "#3C5A14", // Default color for the checkbox
+	"&.Mui-checked": {
+		color: "#3C5A14", // Color when the checkbox is checked
+	},
+	"&:hover": {
+		backgroundColor: "#F6F3F6",
+		color: "#3C5A14",
+	},
+};
+
 
 export const TextFieldStyle = {
   backgroundColor: 'rgba(0,0,0,0)',

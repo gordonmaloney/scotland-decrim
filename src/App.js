@@ -7,7 +7,9 @@ import Landing from "./Pages/Landing/Landing";
 function App() {
   return (
 		<div className="content">
-			<Header />
+		  <Header />
+		  
+		  
 			<Router>
 				<Routes>
 					<Route exact path="/" element={<Landing />} />

@@ -30,7 +30,7 @@ body::before {
     top: 0;
     left: 0;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     height: 100%;
     z-index: 2;
 }
@@ -43,7 +43,6 @@ body::before {
     width: 100%;
     background-color: #9B0000;
     height: 40px;
-    padding: 0 10px;
     display: flex;
     align-items: center;
 }
@@ -67,16 +66,16 @@ body::before {
 .fadeHighlight {
     color: inherit;
     animation-name: fadeHighlight;
-    animation-duration: 8s;
+    animation-duration: 1000s;
 }
 
 @keyframes fadeHighlight {
     0% {
-        background-color: yellow;
-    }
+        background-color: rgba(255, 255, 149, 0.406);
+        }
 
     50% {
-        background-color: yellow;
+        background-color: rgba(255, 255, 149, 0.406);
     }
 
     100% {

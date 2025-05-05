@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
 	TextField,
 	Chip,
@@ -10,6 +10,8 @@ import {
 	Button,
 	useMediaQuery,
 	Tooltip,
+	Checkbox,
+	FormControlLabel,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
@@ -17,7 +19,7 @@ import { SendModal } from "./SendModal";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { BtnStyleSmall, BtnStyle } from "../../MUIStyles";
+import { BtnStyleSmall, BtnStyle, CheckBoxStyle } from "../../MUIStyles";
 import { TextFieldStyle } from "../../MUIStyles";
 import EditableDiv from "../../Components/EditableDiv";
 
@@ -36,6 +38,22 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	const [messaging, setMessaging] = useState([]);
 	const [notMessaging, setNotMessaging] = useState([]);
 
+	const [constituent, setConstituent] = useState(false);
+	useEffect(() => {
+		if (constituent) {
+			const constituentString = `As one of your constituents, you are my representative and if you don’t move to support divestment from the named companies above, you will lose my vote in the next election.
+
+`;
+
+			setNewTemplate((old) =>
+				old.replace(
+					/(I look forward to your response)/,
+					`${constituentString}$1`
+				)
+			);
+		}
+	}, [constituent]);
+
 	useEffect(() => {
 		//get ward councillors
 		const wardCouncillors = EDINBURGHCLLRS.filter(
@@ -49,6 +67,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		if (wardPensionsMembers.length > 0) {
 			// If there are councillors on the committee in the user's ward, set them as the messaging targets
 			setMessaging(wardPensionsMembers);
+			setConstituent(true);
 		} else {
 			// If no councillors in the user's ward are on the committee, choose a random member from the pensions committee
 			const randomPensionsMemberName =
@@ -61,14 +80,37 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 
 			// Set the random committee member as the messaging target
 			setMessaging([randomPensionsMember]);
+			setConstituent(false);
 		}
 	}, [adminDivisions]);
 
-	const promptsChanged = true;
+	const promptsChanged = false;
 	const { template } = campaign;
 	const [newTemplate, setNewTemplate] = useState(
-		campaign.template + `\n${postcode}`
+		campaign.template + `\n${postcode.trim()}`
 	);
+
+	useEffect(() => {
+		if (
+			messaging.length > 0 &&
+			newTemplate &&
+			!newTemplate.startsWith("Dear")
+		) {
+			setNewTemplate(
+				`Dear${messaging.map(
+					(recipient) => ` Councillor ` + recipient.name
+				)},\n\n${newTemplate}`
+			);
+		} else if (
+			messaging.length > 0 &&
+			newTemplate &&
+			newTemplate.startsWith("Dear")
+		) {
+			console.log('dear')
+		}
+	}, [messaging]);
+
+	console.log(messaging.map((recipient) => recipient.name));
 
 	const createPromptAnswers = (prompts) => {
 		return prompts.reduce((acc, prompt) => {
@@ -200,11 +242,10 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					addCondition(prompt);
 				});
 		}
-	}, []);
+	}, [campaign.prompts]);
 
 	const [sent, setSent] = useState(false);
 	const [noClient, setNoClient] = useState(false);
-	//modals
 	const [isSendOpen, setIsSendOpen] = useState(false);
 	const onSendClose = () => {
 		setIsSendOpen(false);
@@ -212,65 +253,27 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	};
 	const Mobile = useMediaQuery("(max-width:900px)");
 
-	const handleSend = (prop) => {
-		const bcc = campaign.bcc;
-		//check for channel, compile everything
+	const [copyIn, setCopyIn] = useState(false);
 
-		if (campaign.channel == "email" && prop !== "gmail" && prop !== "yahoo") {
-			let sendLink = `mailto:${messaging.map(
-				(targ) => targ.email + `,`
-			)}?subject=${encodeURIComponent(newSubject)}&bcc=${
-				bcc ? bcc : ""
-			}&body=${encodeURIComponent(newTemplate)}`;
-
-			window.open(sendLink);
-		}
-
-		if (campaign.channel == "email" && prop == "gmail") {
-			let sendLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${messaging.map(
-				(targ) => targ.email + `,`
-			)}&su=${encodeURIComponent(newSubject)}&bcc=${
-				bcc ? bcc : ""
-			}&body=${encodeURIComponent(newTemplate)}`;
-			window.open(sendLink);
-		}
-
-		if (campaign.channel == "email" && prop == "yahoo") {
-			let sendLink = `http://compose.mail.yahoo.com/?To=${messaging.map(
-				(targ) => targ.email + `,`
-			)}&Subject=${encodeURIComponent(newSubject)}&bcc=${
-				bcc ? bcc : ""
-			}&Body=${encodeURIComponent(
-				newTemplate.replace("%", "%25").replace(/\n/g, "%0A") + "%0A%0A"
-			)}`;
-			window.open(sendLink);
-		}
-
-		setTimeout(() => {
-			setSent(true);
-		}, [2000]);
-
-		//onSendClose();
-
-		//setIsShareOpen(true);
-	};
-
-	const [copied, setCopied] = useState(false);
-
-	const handleCopy = async () => {
-		try {
-			// Copy the current page URL to the clipboard
-			await navigator.clipboard.writeText(window.location.href);
-			// Show the tooltip with "Copied" message
-			setCopied(true);
-			// Hide the tooltip after 3 seconds
-			setTimeout(() => {
-				setCopied(false);
-			}, 2000);
-		} catch (err) {
-			console.error("Failed to copy: ", err);
-		}
-	};
+	const editableDivProps = useMemo(
+		() => ({
+			label: campaign.channel === "email" ? "Body" : "Your Tweet",
+			body: newTemplate,
+			onBodyChange: setNewTemplate,
+			substrings: [
+				...Object.values(promptAnswers),
+				...extractedStringArray,
+			].filter((str) => str !== String),
+			promptsChanged,
+		}),
+		[
+			campaign.channel,
+			newTemplate,
+			promptAnswers,
+			extractedStringArray,
+			promptsChanged,
+		]
+	);
 
 	return (
 		<div>
@@ -353,7 +356,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 									<Accordion
 										className="notMessaging"
 										sx={{
-											backgroundColor: "rgba(0, 66, 25, 0.9)",
+											backgroundColor: "rgba(246, 243, 246, 1)",
 											borderRadius: "5px !important",
 										}}
 									>
@@ -362,7 +365,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 											aria-controls="panel1a-content"
 											id="details"
 											sx={{
-												backgroundColor: "white",
+												backgroundColor: "rgba(246, 243, 246, 1)",
 												borderRadius: "5px 5px 0 0",
 												border: "1px solid lightgray",
 												borderBottom: "0",
@@ -381,7 +384,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 												paddingY: "10px",
 												paddingX: "10px",
 												marginTop: "-10px",
-												backgroundColor: "white",
+												backgroundColor: "rgba(246, 243, 246, 1)",
 												borderRadius: "0 0 5px 5px",
 												border: "1px solid lightgray",
 											}}
@@ -437,26 +440,26 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 
 			<div style={{ position: "relative" }}>
 				<div style={{}}>
-					<EditableDiv
-						label={campaign.channel == "email" ? "Body" : "Your Tweet"}
-						body={newTemplate}
-						onBodyChange={(e) => {
-							//setPromptsChanged(false);
-							setNewTemplate(e);
-						}}
-						substrings={[
-							...extractedStringArray,
-							...Object.values(promptAnswers),
-						].filter((obj) => obj !== String)}
-						promptsChanged={promptsChanged}
-					/>
+					<EditableDiv {...editableDivProps} />
 				</div>
 			</div>
 			{Object.values(promptAnswers).filter((str) => str !== "noOptionSelected")
 				.length > 0 && (
-				<div style={{ marginTop: "-10px", marginBottom: "10px" }}>
+				<div
+					style={{
+						marginTop: "-10px",
+						marginBottom: "10px",
+						marginLeft: "auto",
+						marginRight: "auto",
+						width: "90%",
+						fontSize: "small",
+						textAlign: "center",
+					}}
+				>
 					<em>
-						Make sure to check that your answers to the questions look ok!
+						Your answers have been incorporated into the template message,
+						highlighted for you in yellow - check to make sure they still look
+						okay!{" "}
 					</em>
 				</div>
 			)}
@@ -473,6 +476,28 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					campaign.channel == "twitter" && {
 						maxLength: campaign.channel == "twitter" && 280,
 					}
+				}
+			/>
+
+			<FormControlLabel
+				sx={{ marginTop: "-10px", display: campaign.bcc ? "" : "none" }}
+				control={
+					<Checkbox
+						style={CheckBoxStyle}
+						onChange={(e) => setCopyIn(e.target.checked)}
+					/>
+				}
+				label={
+					<p
+						style={{
+							fontSize: "0.9rem",
+							lineHeight: "0.9rem",
+							fontWeight: 500,
+						}}
+					>
+						Tick here to copy in <b>{campaign.host}</b> to your email if you are
+						happy to share your contact details and message with them.
+					</p>
 				}
 			/>
 
@@ -498,179 +523,17 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					onSendClose();
 					setNoClient(false);
 				}}
-				title={!sent ? "Send your message" : "What now?"}
-				body={
-					noClient ? (
-						<p>
-							If you don't use an email app, or the buttons on the last page
-							didn't work, you can use these buttons to copy and paste the
-							recipients, subject, and body of your email to whatever client you
-							use:
-							<br />
-							<br />
-							<Grid
-								container
-								spacing={1}
-								justifyContent={"center"}
-								alignContent={"center"}
-							>
-								<Grid item sm={4} xs={12}>
-									<center>
-										<Button
-											sx={BtnStyleSmall}
-											onClick={() =>
-												navigator.clipboard.writeText(
-													`${messaging.map((targ) => targ.email + `,`)}  ${
-														campaign.bcc
-													} `
-												)
-											}
-										>
-											Copy recipients
-										</Button>
-									</center>
-								</Grid>
-
-								<Grid item sm={4} xs={12}>
-									<center>
-										{" "}
-										<Button
-											sx={BtnStyleSmall}
-											onClick={() => navigator.clipboard.writeText(newSubject)}
-										>
-											Copy subject
-										</Button>
-									</center>
-								</Grid>
-								<Grid item sm={4} xs={12}>
-									<center>
-										{" "}
-										<Button
-											sx={BtnStyleSmall}
-											onClick={() => navigator.clipboard.writeText(newTemplate)}
-										>
-											Copy email body
-										</Button>
-									</center>
-								</Grid>
-							</Grid>
-						</p>
-					) : !sent ? (
-						<p>
-							You're almost there. Press the button below to open your{" "}
-							{campaign.channel == "email" ? "email" : "Twitter"} client, and
-							the message will be pre-filled in there for you. Then just hit
-							send in there to fire it off.
-							<br />{" "}
-							<center>
-								<Button
-									onClick={() => handleSend()}
-									style={{ ...BtnStyleSmall, marginTop: "5px" }}
-								>
-									Send {campaign.channel == "email" ? "email" : "tweet"}
-								</Button>
-							</center>
-							{!Mobile && campaign.channel == "email" && (
-								<>
-									<br />
-									If you use Gmail or Yahoo Mail, you can use these button to
-									send the message from your browser:
-									<br />
-									<div
-										style={{ display: "flex", justifyContent: "space-around" }}
-									>
-										<Button
-											onClick={() => handleSend("gmail")}
-											style={{ ...BtnStyleSmall, marginTop: "5px" }}
-										>
-											Send via Gmail
-										</Button>
-										<Button
-											onClick={() => handleSend("yahoo")}
-											style={{ ...BtnStyleSmall, marginTop: "5px" }}
-										>
-											Send via Yahoo
-										</Button>
-									</div>{" "}
-								</>
-							)}
-							<br />
-							<span style={{ fontSize: "12px" }}>
-								<em>
-									Not working?{" "}
-									<span onClick={() => setNoClient(true)}>
-										<u>Copy & paste instead.</u>
-									</span>
-								</em>
-							</span>
-						</p>
-					) : (
-						<>
-							<p>
-								Nice one! Will you now{" "}
-								<b>take a moment to share the campaign with a few friends?</b>{" "}
-								You can use the buttons below:
-							</p>
-							<div style={{ display: "flex", justifyContent: "space-around" }}>
-								<Button
-									sx={BtnStyleSmall}
-									target="_blank"
-									href={`http://wa.me/?text=${encodeURI(
-										"Hey! I've just taken part in this campaign - check it out here: " +
-											campaign.title +
-											" " +
-											window.location.href
-									)}`}
-								>
-									Share on WhatsApp
-								</Button>
-								<Button
-									sx={BtnStyleSmall}
-									target="_blank"
-									href={`https://bsky.app/intent/compose?text=${encodeURI(
-										campaign.title + " " + window.location.href
-									)}`}
-								>
-									Share on BlueSky
-								</Button>
-							</div>
-
-							<p>
-								You can also just{" "}
-								<Tooltip
-									open={copied}
-									title="Copied"
-									disableHoverListener
-									disableFocusListener
-									disableTouchListener
-									placement="top"
-									PopperProps={{
-										modifiers: [
-											{
-												name: "offset",
-												options: {
-													offset: [0, -14], // Adjust the second value to move tooltip closer/further
-												},
-											},
-										],
-									}}
-								>
-									<span
-										onClick={handleCopy}
-										style={{
-											cursor: "pointer",
-											color: "inherit",
-											textDecoration: "underline",
-										}}
-									>
-										click here
-									</span>
-								</Tooltip>{" "}
-								to copy the link and share it with your friends!
-							</p>
-						</>
-					)
-				}
+				noClient={noClient}
+				setNoClient={setNoClient}
+				messaging={messaging}
+				bcc={campaign.bcc}
+				campaign={campaign}
+				newSubject={newSubject}
+				newTemplate={newTemplate}
+				Mobile={Mobile}
+				sent={sent}
+				setSent={setSent}
+				copyIn={copyIn}
 			/>
 		</div>
 	);

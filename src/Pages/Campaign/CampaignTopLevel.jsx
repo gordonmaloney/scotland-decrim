@@ -21,7 +21,6 @@ const CampaignTopLevel = () => {
 		//border: "1px solid grey",
 		padding: "10px 8px 12px 8px",
 		backgroundColor: "rgba(246, 243, 246, 0.8)",
-		margin: "0",
 	};
 
 	const [stage, setStage] = useState(0);
@@ -31,34 +30,41 @@ const CampaignTopLevel = () => {
 	}
 
 	return (
-		<Box
-			sx={{
-				flexGrow: 1,
-				margin: "20px auto 0 auto",
-				width: { xs: "100%", sm: "90%" },
-				maxWidth: "1200px",
-			}}
-		>
-			{isSmallScreen ? (
-				<h2 style={{ padding: "0px 6px", margin: "2px 0" }}>
-					{campaign.title}
-				</h2>
-			) : (
-				<h1 style={{ padding: "0px 6px" }}>{campaign.title}</h1>
-			)}
-			<Grid container spacing={2}>
-				<Grid size={{ xs: 12, sm: 6, md: 4 }}>
-					<Paper sx={GridStyle}>
-						<CampaignBlurbs campaign={campaign} stage={stage} />
-					</Paper>
+			<Box
+				sx={{
+					width: "100vw", // Ensures full width at all screen sizes
+					maxWidth: { xs: "100vw", sm: "90%" }, // Adjusts max width on mobile
+					margin: "0 auto" ,
+				}}
+			>
+				{isSmallScreen ? (
+					<h2 style={{ padding: "0px 6px", margin: "2px 0" }}>
+						{campaign.title}
+					</h2>
+				) : (
+					<h1 style={{ padding: "0px 6px" }}>{campaign.title}</h1>
+				)}
+				<Grid
+					container
+					spacing={2}
+					justifyContent="center" // Center align the grid items
+					sx={{
+						width: "100%",
+						margin: 0, // Ensure no extra margin on the grid container
+					}}
+				>
+					<Grid size={{ xs: 12, md: 4 }}>
+						<Paper sx={GridStyle}>
+							<CampaignBlurbs campaign={campaign} stage={stage} />
+						</Paper>
+					</Grid>
+					<Grid size={{ xs: 12,  md: 8 }}>
+						<Paper sx={GridStyle}>
+							<Campaign campaign={campaign} stage={stage} setStage={setStage} />
+						</Paper>
+					</Grid>
 				</Grid>
-				<Grid size={{ xs: 12, sm: 6, md: 8 }}>
-					<Paper sx={GridStyle}>
-						<Campaign campaign={campaign} stage={stage} setStage={setStage} />
-					</Paper>
-				</Grid>
-			</Grid>
-		</Box>
+			</Box>
 	);
 };
 
