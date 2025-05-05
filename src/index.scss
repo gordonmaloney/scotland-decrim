@@ -1,11 +1,20 @@
+@import './variables';
+
+$font: var(--font);
+$header-color: var(--header-color);
+$background-color: var(--background-color);
+$primary-color: var(--primary-color);
+$secondary-color: var(--secondary-color);
+$text-highlight: var(--text-highlight);
+
+$box-outline: var(--box-outline);
+$box-outline-focus: var(--box-outline-focus);
+
+
 
 body {
-    font-family: "Funnel Sans", sans-serif;
-    background-image: url('./bg.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    font-family: $font;
+
     overflow-x: hidden;
     max-width: 100vw;
 }
@@ -17,8 +26,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(234, 234, 234, 0.9);
-    /* Adjust opacity as needed */
+    background-color: $primary-color;
     pointer-events: none;
     /* Ensures overlay doesn’t interfere with content below */
     z-index: 1;
@@ -39,16 +47,21 @@ body::before {
  color: inherit
 }
 
+h1, h2, h3, h4, h5, h6 {
+    color: $primary-color;
+}
+
 .header {
     width: 100%;
-    background-color: #9B0000;
-    height: 40px;
+    background-color: $header-color;
+    height: 60px;
     display: flex;
     align-items: center;
+    color: $primary-color;
 }
 
 .editableDivBox:hover {
-    outline: 1px solid rgba(0, 0, 0, .8) !important;
+    outline: $box-outline !important;
     outline-offset: -1px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -56,7 +69,7 @@ body::before {
 }
 
 .editableDivBox:focus-within {
-    outline: 2.3px solid #537A8B !important;
+    outline: $box-outline-focus !important;
     outline-offset: -2px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -71,11 +84,11 @@ body::before {
 
 @keyframes fadeHighlight {
     0% {
-        background-color: rgba(255, 255, 149, 0.406);
+        background-color: $text-highlight;
         }
 
     50% {
-        background-color: rgba(255, 255, 149, 0.406);
+        background-color: $text-highlight;
     }
 
     100% {

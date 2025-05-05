@@ -7,10 +7,9 @@ import Landing from "./Pages/Landing/Landing";
 function App() {
   return (
 		<div className="content">
-		  <Header />
-		  
-		  
 			<Router>
+				<Header />
+
 				<Routes>
 					<Route exact path="/" element={<Landing />} />
 					<Route path="/act/:campaignId" element={<CampaignTopLevel />} />

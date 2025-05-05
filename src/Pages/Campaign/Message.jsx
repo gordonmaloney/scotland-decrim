@@ -23,66 +23,76 @@ import { BtnStyleSmall, BtnStyle, CheckBoxStyle } from "../../MUIStyles";
 import { TextFieldStyle } from "../../MUIStyles";
 import EditableDiv from "../../Components/EditableDiv";
 
-import { EDINBURGHCLLRS } from "../../Data/EDINBURGHCLLRS";
 
 const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
-	//TEMP HERE - FOR TIME TO DIVEST ONLY:
-	const PensionsCttee = [
-		"Mandy Watt",
-		"Adam Nols-McVey",
-		"Iain Whyte",
-		"Steve Burgess",
-		"Neil Ross",
-	];
+	const [Loading, setLoading] = useState(true);
 
 	const [messaging, setMessaging] = useState([]);
 	const [notMessaging, setNotMessaging] = useState([]);
 
-	const [constituent, setConstituent] = useState(false);
+	//REGIONS
+	const [Regions, setRegions] = useState([]);
 	useEffect(() => {
-		if (constituent) {
-			const constituentString = `As one of your constituents, you are my representative and if you don’t move to support divestment from the named companies above, you will lose my vote in the next election.
-
-`;
-
-			setNewTemplate((old) =>
-				old.replace(
-					/(I look forward to your response)/,
-					`${constituentString}$1`
-				)
-			);
+		if (campaign.target === "msps") {
+			const load = async () => {
+				try {
+					const response = await fetch(
+						"https://raw.githubusercontent.com/gordonmaloney/rep-data/main/REGIONS.json"
+					);
+					if (!response.ok) {
+						throw new Error("Failed to fetch regions");
+					}
+					const data = await response.json();
+					setRegions(data);
+				} catch (err) {
+					console.error("Could not load regions:", err);
+				}
+			};
+			load();
 		}
-	}, [constituent]);
+	}, [campaign]);
+
+	const [MSPs, setMSPs] = useState([]);
+	useEffect(() => {
+		if (campaign.target === "msps") {
+			const load = async () => {
+				try {
+					const response = await fetch(
+						"https://raw.githubusercontent.com/gordonmaloney/rep-data/main/MSPs.json"
+					);
+					if (!response.ok) {
+						throw new Error("Failed to fetch MSPs");
+					}
+					const data = await response.json();
+					setMSPs(data);
+				} catch (err) {
+					console.error("Could not load MSPs:", err);
+				}
+			};
+			load();
+		}
+	}, [campaign]);
 
 	useEffect(() => {
-		//get ward councillors
-		const wardCouncillors = EDINBURGHCLLRS.filter(
-			(cllr) => cllr.ward === adminDivisions.ward
-		);
+		//MSPs
+		if (campaign.target == "msps" && Regions.length > 1 && MSPs.length > 1) {
+			let constituency = adminDivisions.scotConstituency;
+			let region = Regions.filter(
+				(region) => region.constituency == constituency
+			)[0].region;
 
-		// Filter to see if any ward councillors are on the pensions committee
-		const wardPensionsMembers = wardCouncillors.filter((cllr) =>
-			PensionsCttee.includes(cllr.name)
-		);
-		if (wardPensionsMembers.length > 0) {
-			// If there are councillors on the committee in the user's ward, set them as the messaging targets
-			setMessaging(wardPensionsMembers);
-			setConstituent(true);
-		} else {
-			// If no councillors in the user's ward are on the committee, choose a random member from the pensions committee
-			const randomPensionsMemberName =
-				PensionsCttee[Math.floor(Math.random() * PensionsCttee.length)];
-
-			// Find the full details of the randomly selected committee member
-			const randomPensionsMember = EDINBURGHCLLRS.find(
-				(cllr) => cllr.name === randomPensionsMemberName
-			);
-
-			// Set the random committee member as the messaging target
-			setMessaging([randomPensionsMember]);
-			setConstituent(false);
+			if (campaign.target == "msps" && Regions.length > 1 && MSPs.length > 1) {
+				setMessaging(
+					MSPs.filter(
+						(msp) =>
+							msp.constituency == adminDivisions.scotConstituency ||
+							msp.constituency == region
+					)
+				);
+				setLoading(false);
+			}
 		}
-	}, [adminDivisions]);
+	}, [adminDivisions, Regions, MSPs]);
 
 	const promptsChanged = false;
 	const { template } = campaign;
@@ -106,11 +116,9 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 			newTemplate &&
 			newTemplate.startsWith("Dear")
 		) {
-			console.log('dear')
 		}
 	}, [messaging]);
 
-	console.log(messaging.map((recipient) => recipient.name));
 
 	const createPromptAnswers = (prompts) => {
 		return prompts.reduce((acc, prompt) => {
@@ -275,9 +283,13 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		]
 	);
 
+	if (Loading) {
+		return <></>
+	}
+
 	return (
 		<div>
-			{campaign.channel == "email" && (
+			{campaign.channel == "email" &&  (
 				<>
 					<Box
 						sx={{
@@ -513,7 +525,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 				</Button>
 
 				<Button sx={BtnStyleSmall} onClick={() => setIsSendOpen(true)}>
-					SEND
+					Send
 				</Button>
 			</div>
 

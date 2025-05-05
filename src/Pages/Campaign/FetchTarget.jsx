@@ -91,6 +91,7 @@ const FetchTarget = ({
 				Enter your postcode to find your representatives: *
 			</div>
 			<TextField
+				id="postcode"
 				placeholder="Your postcode..."
 				sx={TextFieldStyle}
 				fullWidth

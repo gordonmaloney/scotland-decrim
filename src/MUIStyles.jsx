@@ -1,59 +1,70 @@
 export const BtnStyle = {
 	fontSize: "large",
+	textTransform: "none",
 	fontWeight: "600",
 	borderRadius: "10px",
-	color: "#F6F3F6",
-	backgroundColor: "#3C5A14",
-	border: "1px solid #3C5A14",
-	"&:hover, &:active": { backgroundColor: "#F6F3F6", color: "#3C5A14" },
-  "&:disabled": {color: 'red'}
+	color: "var(--secondary-color)",
+	backgroundColor: "var(--button-color)",
+	border: "1px solid var(--button-color)",
+	"&:hover, &:active": {
+		backgroundColor: "var(--secondary-color)",
+		color: "var(--button-color)",
+	},
+	"&:disabled": { color: "red" },
 };
 
 export const BtnStyleSmall = {
 	fontSize: "medium",
-	fontWeight: "600",
+	textTransform: "none",
+	fontWeight: "300",
 	borderRadius: "10px",
-	color: "#F6F3F6",
-	backgroundColor: "#3C5A14",
-	border: "1px solid #3C5A14",
-	"&:hover, &:active": { backgroundColor: "#F6F3F6", color: "#3C5A14" },
-	"&:disabled": { color: "#a7a7a7", backgroundColor: "#4e5248" },
+	color: "var(--secondary-color)",
+	backgroundColor: "var(--button-color)",
+	border: "1px solid var(--button-color)",
+	"&:hover, &:active": {
+		backgroundColor: "var(--secondary-color)",
+		color: "var(--button-color)",
+	},
+	"&:disabled": {
+		color: "var(--button-disabled-color)",
+		backgroundColor: "var(--button-disabled-background)",
+	},
 };
 
 
 export const CheckBoxStyle = {
-	color: "#3C5A14", // Default color for the checkbox
+	color: "var(--button-color)", // Default color for the checkbox
 	"&.Mui-checked": {
-		color: "#3C5A14", // Color when the checkbox is checked
+		color: "var(--button-color)", // Color when the checkbox is checked
 	},
 	"&:hover": {
-		backgroundColor: "#F6F3F6",
-		color: "#3C5A14",
+		backgroundColor: "var(--secondary-color)",
+		color: "var(--button-color)",
 	},
 };
 
 
 export const TextFieldStyle = {
-  backgroundColor: 'rgba(0,0,0,0)',
-  marginBottom: '12px',
-  marginTop: "3px",
-  "& label.Mui-focused": {
-    color: "#537A8B",
-  },
-  "& .MuiInput-underline:after": {
-    borderBottomColor: "#537A8B",
-  },
-  "& .MuiFilledInput-underline:after": {
-    borderBottomColor: "#537A8B",
-  },
-  "& .MuiOutlinedInput-root": {
-    "&.Mui-focused fieldset": {
-      borderColor: "#537A8B",
-    },
-    "& .MuiSelect-root": {
-      "&.Mui-focused fieldset": {
-        borderColor: "#537A8B",
-      },
-    },
-  },
+	backgroundColor: "rgba(0,0,0,0)",
+	marginBottom: "12px",
+	marginTop: "3px",
+	"& label.Mui-focused": {
+		color: "var(--textfield-outline)",
+	},
+	"& .MuiInput-underline:after": {
+		borderBottomColor: "var(--textfield-outline)",
+	},
+	"& .MuiFilledInput-underline:after": {
+		borderBottomColor: "var(--textfield-outline)",
+	},
+	"& .MuiOutlinedInput-root": {
+		"&.Mui-focused fieldset": {
+			borderColor: "var(--textfield-outline)",
+		},
+		"& .MuiSelect-root": {
+			"&.Mui-focused fieldset": {
+				borderColor: "var(--textfield-outline)",
+			},
+		},
+	},
 };

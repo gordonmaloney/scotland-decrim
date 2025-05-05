@@ -1,22 +1,15 @@
 export const ALL_CAMPAIGNS = [
 	{
-		campaignId: "timetodivest",
+		campaignId: "decrimnow",
 		campaign: {
-			id: "timetodivest",
-			title: "Demand LPF divest from apartheid",
-			host: "Time to Divest Edinburgh",
+			id: "decrimnow",
+			title: "Full decriminalisation",
+			host: "Scotland for Decrim",
 			channel: "email",
-			target: "custom",
-			blurb: `The Lothian Pension Fund invests millions of pounds of council-workers' money in propping up Israeli apartheid. Will you write to the pensions committee and demand they vote to divest?`,
-			link: "https://linktr.ee/timetodivest",
+			target: "msps",
+			blurb: `Scotland for Decrim is a grassroots campaign fighting for the full decriminalisation of sex work in Scotland.`,
+			link: "https://scotlandfordecrim.org/",
 			prompts: [
-				{
-					id: "member",
-					question: "Are you a member of the Lothian Pension fund?",
-					answerType: "yesno",
-					required: true,
-					answer: null,
-				},
 				{
 					id: "yourname",
 					question: "Your name:",
@@ -25,27 +18,25 @@ export const ALL_CAMPAIGNS = [
 					answer: null,
 				},
 			],
-			subject: "Divest from apartheid!",
-			bcc: "timetodivestedinburgh@gmail.com",
-			template: `I am writing as a concerned constituent regarding your role on the Lothian Pension Fund’s pensions committee and to express my strong support for the Edinburgh Time to Divest Campaign. I agree that there is a moral imperative to divest from Lockheed Martin, Northrop Grumman, General Dynamics, Caterpillar, Cisco and Siemens. Over 40,000 Palestinians have been killed and over 77,000 wounded in Israel’s relentless attack on Gaza whilst thousands are detained in the West Bank.
+			subject: "Scotland needs decriminalisation",
+			bcc: "Scotland4Decrim@proton.me",
+			template: `Dear MSPs,
 
-The advisory opinion from the International Court of Justice in July has now rendered beyond doubt Israel’s decades-long occupation of the Palestinian territories as illegal and amounting to apartheid. By continuing to hold investments in companies complicit in Israel’s illegal occupation, the Lothian Pension Fund is flagrantly neglecting its ESG responsibilities.
+I’m contacting you as a constituent to ask you to support sex workers' rights, and to work to achieve the full decriminalisation of sex work in Scotland. Decriminalisation enables sex workers to work together for safety: decriminalisation saves lives.
 
-In response to the Russian invasion of Ukraine, the Lothian Pension Fund claimed that “respect for human rights is a priority engagement theme”. Respect for human rights is simply incompatible with continued investments in Israeli apartheid. Serious questions must also be asked about their fiduciary integrity as well. As the UN’s highest court has instructed all member states, including the UK, not to “render aid or assistance in maintaining” Israel’s illegal occupation, it is clear that divestment from complicit companies is both the moral and financially responsible course of action.
+The poverty crisis in Scotland is driving increasing numbers of people into sex work, especially women and mothers. The government needs to take urgent action to rebuild the social safety net and enable everyone to access state support, so that fewer people have to rely on sex work to meet their needs.
 
-Lockheed Martin, Northrop Grumman and General Dynamics are arms manufacturers whose weapons systems are used by the IDF against Palestinian civilians.
+At the same time, the law on sex work in Scotland puts sex workers in danger, and it must change. The partial criminalisation of sex work in Scotland forces sex workers to work alone indoors, or in more isolated areas on the street, in order to avoid being fined or arrested by the police for soliciting or ‘brothel-keeping’. This puts them at increased risk of violence from clients or the police, with no one around to help keep them safe. Criminalisation of sex workers through fines or arrests pushes sex workers further into poverty, and prevents them from being able to exit sex work. There will be people in your constituency who are facing this situation. Please take action to protect them.
 
-Caterpillar provides demolition equipment, often militarised, to the IDF which is used to demolish Palestinian homes, clearing entire Palestinian villages that have existed for hundreds of years.
+Northern Ireland and Ireland (amongst some other European countries) have implemented the "Nordic Model" on sex work, which means criminalising the purchase of sex. But evidence shows that the Nordic Model has failed everywhere it has been implemented: sex workers in Nordic Model countries continue to report receiving fines, being arrested, being evicted from their homes or deported, as a result of doing sex work. Client criminalisation puts sex workers in danger, forcing them to avoid the police, and increasing the poverty, stigma, and violence they face. Client criminalisation also drives sex workers away from support services, and worsens their health outcomes.
 
-Siemens and Cisco are technology companies involved in the illegal settlement of the West Bank and the monitoring of the Palestinians living there.
+Not only does the Nordic Model make sex workers less safe, it is also rejected by the Scottish public. A YouGov poll of 1,088 Scottish adults, carried out for National Ugly Mugs (NUM), the UK’s sex worker victim support charity, shows that Scots firmly oppose this controversial sex work policy agenda: only 14% of those polled supported the government passing new laws to prevent people exchanging sexual services for money. Instead, 69% of Scots say the Scottish Government should focus on protecting the health and safety of sex workers. 62% also oppose the Scottish Government’s declaration that sex work always equals violence against women, with only 13% supporting this idea.
 
-Divestment represents an opportunity for the Pensions Committee to stand firmly on the side of its ESG commitments. I urge you to publicly support divestment and to take every possible measure to ensure it passes as a committee motion.
-<<member=yes:
-I am a pension holder with the LPF and am ashamed and infuriated to know my pension deductions are being used to invest in these complicit companies.
->>
-I look forward to your response and to seeing your continued commitment to these crucial principles.
+Every sex worker-led organisation in the UK is calling for the full decriminalisation of sex work. Decriminalisation would enable sex workers to work together for safety, without fearing fines, arrests or deportation. The full decriminalisation of sex work is also endorsed by organisations including Amnesty International, the World Health Organisation, the UN Working Group on Discrimination against Women and Girls, StopAIDS, and many others.
 
-Yours sincerely,
+Please email Scotland for Decrim at scotland4decrim@proton.me to receive a briefing with more information, and to arrange a meeting to discuss this further.
+
+Thank you,
 <<yourname>>`,
 			customTarget: [""],
 		},

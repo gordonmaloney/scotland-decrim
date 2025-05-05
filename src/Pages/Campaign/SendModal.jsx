@@ -1,11 +1,12 @@
 import React, {useState} from "react";
 import { Modal, Button, Box, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { BtnStyle } from "../../MUIStyles";
+import { BtnStyle, BtnStyleSmall } from "../../MUIStyles";
 import Grid from "@mui/material/Grid2";
 
 const ModalStyle = {
 	position: "absolute",
+	fontFamily: "var(--font)",
 	top: "50%",
 	left: "50%",
 	transform: "translate(-50%, -50%)",
@@ -125,7 +126,7 @@ export const SendModal = ({
 							<Grid item sm={4} xs={12}>
 								<center>
 									<Button
-										sx={BtnStyle}
+										sx={BtnStyleSmall}
 										onClick={() =>
 											navigator.clipboard.writeText(
 												`${messaging.map((targ) => targ.email + `,`)}  ${
@@ -142,7 +143,7 @@ export const SendModal = ({
 							<Grid item sm={4} xs={12}>
 								<center>
 									<Button
-										sx={BtnStyle}
+										sx={BtnStyleSmall}
 										onClick={() => navigator.clipboard.writeText(newSubject)}
 									>
 										Copy subject
@@ -152,7 +153,7 @@ export const SendModal = ({
 							<Grid item sm={4} xs={12}>
 								<center>
 									<Button
-										sx={BtnStyle}
+										sx={BtnStyleSmall}
 										onClick={() => navigator.clipboard.writeText(newTemplate)}
 									>
 										Copy email body
@@ -172,7 +173,7 @@ export const SendModal = ({
 						<center>
 							<Button
 								onClick={() => handleSend()}
-								style={{ ...BtnStyle, marginTop: "5px" }}
+								style={{ ...BtnStyleSmall, marginTop: "5px" }}
 							>
 								Send {campaign.channel === "email" ? "email" : "tweet"}
 							</Button>
@@ -189,13 +190,13 @@ export const SendModal = ({
 								>
 									<Button
 										onClick={() => handleSend("gmail")}
-										style={{ ...BtnStyle, marginTop: "5px" }}
+										style={{ ...BtnStyleSmall, marginTop: "5px" }}
 									>
 										Send via Gmail
 									</Button>
 									<Button
 										onClick={() => handleSend("yahoo")}
-										style={{ ...BtnStyle, marginTop: "5px" }}
+										style={{ ...BtnStyleSmall, marginTop: "5px" }}
 									>
 										Send via Yahoo
 									</Button>
@@ -221,7 +222,7 @@ export const SendModal = ({
 						</p>
 						<div style={{ display: "flex", justifyContent: "space-around" }}>
 							<Button
-								sx={BtnStyle}
+								sx={BtnStyleSmall}
 								target="_blank"
 								href={`http://wa.me/?text=${encodeURI(
 									"Hey! I've just taken part in this campaign - check it out here: " +
@@ -233,7 +234,7 @@ export const SendModal = ({
 								Share on WhatsApp
 							</Button>
 							<Button
-								sx={BtnStyle}
+								sx={BtnStyleSmall}
 								target="_blank"
 								href={`https://bsky.app/intent/compose?text=${encodeURI(
 									campaign.title + " " + window.location.href
@@ -281,7 +282,7 @@ export const SendModal = ({
 
 				<center>
 					<Button
-						sx={{ ...BtnStyle, transform: "scale(0.8)", marginTop: "5px" }}
+						sx={{ ...BtnStyleSmall, transform: "scale(0.8)", marginTop: "5px" }}
 						onClick={onClose}
 					>
 						Close
