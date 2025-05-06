@@ -17,14 +17,14 @@ const GridStyle = {
 	//border: "1px solid grey",
 
 	width: "100%",
-	maxWidth: "600px",
+	maxWidth: "1200px",
 
-	padding: "10px 8px 12px 8px",
+	padding: "30px 8px 30px 8px",
 	backgroundColor: "var(--header-color)",
 	margin: "40px auto 0 auto",
 };
 
-console.log(ALL_CAMPAIGNS.map((campaign) => campaign.campaign.title));
+
 const Landing = () => {
 	return (
 		<div>

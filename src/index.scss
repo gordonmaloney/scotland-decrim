@@ -4,6 +4,7 @@ $font: var(--font);
 $header-color: var(--header-color);
 $background-color: var(--background-color);
 $primary-color: var(--primary-color);
+$primary-color-semi-trans: var(--primary-color-semi-trans);
 $secondary-color: var(--secondary-color);
 $text-highlight: var(--text-highlight);
 
@@ -14,7 +15,11 @@ $box-outline-focus: var(--box-outline-focus);
 
 body {
     font-family: $font;
-
+    background-image: url('./bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     overflow-x: hidden;
     max-width: 100vw;
 }
@@ -26,7 +31,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: $primary-color;
+    //background-color: $primary-color;
     pointer-events: none;
     /* Ensures overlay doesn’t interfere with content below */
     z-index: 1;
