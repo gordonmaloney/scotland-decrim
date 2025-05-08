@@ -30,7 +30,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	const [messaging, setMessaging] = useState([]);
 	const [notMessaging, setNotMessaging] = useState([]);
 
-	//REGIONS
+	//FETCH REGIONS
 	const [Regions, setRegions] = useState([]);
 	useEffect(() => {
 		if (campaign.target === "msps") {
@@ -52,6 +52,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		}
 	}, [campaign]);
 
+	//FETCH MSPs
 	const [MSPs, setMSPs] = useState([]);
 	useEffect(() => {
 		if (campaign.target === "msps") {
@@ -73,6 +74,8 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		}
 	}, [campaign]);
 
+
+	//ASSIGN TARGETS
 	useEffect(() => {
 		//MSPs
 		if (campaign.target == "msps" && Regions.length > 1 && MSPs.length > 1) {
@@ -97,7 +100,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	const promptsChanged = false;
 	const { template } = campaign;
 	const [newTemplate, setNewTemplate] = useState(
-		campaign.template + `\n${postcode.trim()}`
+		campaign.template + `\n${postcode.trim().toUpperCase()}`
 	);
 
 	useEffect(() => {
@@ -108,7 +111,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		) {
 			setNewTemplate(
 				`Dear${messaging.map(
-					(recipient) => ` Councillor ` + recipient.name
+					(recipient) => ` ` + recipient.name
 				)},\n\n${newTemplate}`
 			);
 		} else if (

@@ -17,22 +17,25 @@ const GridStyle = {
 	//border: "1px solid grey",
 
 	width: "100%",
-	maxWidth: "1200px",
+	maxWidth: "600px",
 
-	padding: "30px 8px 30px 8px",
-	backgroundColor: "var(--header-color)",
+	padding: "10px 8px 12px 8px",
+	backgroundColor: "rgba(246, 243, 246, 0.8)",
 	margin: "40px auto 0 auto",
+	display: "flex",
 };
 
 
 const Landing = () => {
 	return (
 		<div>
-			{ALL_CAMPAIGNS.map((campaign) => (
-				<Paper style={GridStyle} key={campaign.campaign.id}>
+			<Paper style={GridStyle}>
+				{ALL_CAMPAIGNS.map((campaign) => (
 					<Card
 						component="div"
+						key={campaign.campaign.id}
 						sx={{
+							display: "inline-block",
 							maxWidth: 270,
 							backgroundColor: "#F0F5FA",
 							margin: "auto",
@@ -50,15 +53,16 @@ const Landing = () => {
 								<h4 style={{ margin: 0 }}>{campaign.campaign.title}</h4>
 								<br />
 								{campaign.campaign.blurb}
-<br/><br/>
+								<br />
+								<br />
 								<center>
 									<Button sx={BtnStyleSmall}>Take Action</Button>
 								</center>
 							</CardContent>
 						</Link>
 					</Card>
-				</Paper>
-			))}
+				))}
+			</Paper>
 		</div>
 	);
 };
