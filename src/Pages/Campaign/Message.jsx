@@ -30,6 +30,8 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	const [messaging, setMessaging] = useState([]);
 	const [notMessaging, setNotMessaging] = useState([]);
 
+	const [error, setError] = useState('')
+
 	//FETCH REGIONS
 	const [Regions, setRegions] = useState([]);
 	useEffect(() => {
@@ -74,11 +76,21 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		}
 	}, [campaign]);
 
-
 	//ASSIGN TARGETS
 	useEffect(() => {
 		//MSPs
-		if (campaign.target == "msps" && Regions.length > 1 && MSPs.length > 1) {
+
+		if (campaign.target == "msps" && !campaign.scotConstituency) {
+			setError("No Scottish Constituency found...");
+			setLoading(false)
+		}
+
+		if (
+			campaign.scotConstituency &&
+			campaign.target == "msps" &&
+			Regions.length > 1 &&
+			MSPs.length > 1
+		) {
 			let constituency = adminDivisions.scotConstituency;
 			let region = Regions.filter(
 				(region) => region.constituency == constituency
@@ -121,7 +133,6 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		) {
 		}
 	}, [messaging]);
-
 
 	const createPromptAnswers = (prompts) => {
 		return prompts.reduce((acc, prompt) => {
@@ -287,12 +298,19 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	);
 
 	if (Loading) {
-		return <></>
+		return <></>;
+	}
+
+	if (error) {
+		return <>
+		Sorry - something has gone wrong while looking up your representative's data. If you could let us know your postcode, we'll try to get it fixed! 
+		</>;
+
 	}
 
 	return (
 		<div>
-			{campaign.channel == "email" &&  (
+			{campaign.channel == "email" && (
 				<>
 					<Box
 						sx={{

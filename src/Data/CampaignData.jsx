@@ -45,7 +45,7 @@ Not only does the Nordic Model make sex workers less safe, it is also rejected b
 
 Every sex worker-led organisation in the UK is calling for the full decriminalisation of sex work. Decriminalisation would enable sex workers to work together for safety, without fearing fines, arrests or deportation. The full decriminalisation of sex work is also endorsed by organisations including Amnesty International, the World Health Organisation, the UN Working Group on Discrimination against Women and Girls, StopAIDS, and many others. Please listen to sex workers’ demands, and take action to support them.
 
-Please email the sex worker-led campaign Scotland for Decrim at scotland4decrim@proton.me to receive a briefing with more information, and to arrange a meeting to hear more about what sex workers wantdiscuss this further.
+Please email the sex worker-led campaign Scotland for Decrim at scotland4decrim@proton.me to receive a briefing with more information, and to arrange a meeting to hear more about what sex workers want.
 
 Thank you,
 <<yourname>>`,
