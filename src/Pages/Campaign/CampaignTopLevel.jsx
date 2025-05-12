@@ -7,6 +7,7 @@ import CampaignBlurbs from "./CampaignBlurbs";
 import { Box, Paper } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { useMediaQuery } from "@mui/material";
+import CampaignAccordion from "./CampaignAccordion";
 
 const CampaignTopLevel = () => {
 	// Use 600px as the breakpoint for "sm" without needing the theme provider
@@ -66,11 +67,26 @@ const CampaignTopLevel = () => {
 					<Paper sx={GridStyle}>
 						<CampaignBlurbs campaign={campaign} stage={stage} />
 					</Paper>
+
+					{campaign?.accordion && !isSmallScreen && (
+						<Paper sx={GridStyle}>
+							<h3 style={{ margin: "0 0 10px 5px" }}>FAQs</h3>
+							<CampaignAccordion campaign={campaign} />
+						</Paper>
+					)}
 				</Grid>
 				<Grid size={{ xs: 12, md: 8 }}>
 					<Paper sx={GridStyle}>
 						<Campaign campaign={campaign} stage={stage} setStage={setStage} />
 					</Paper>
+
+					{campaign?.accordion &&
+						isSmallScreen && (
+							<Paper sx={GridStyle}>
+								<h3 style={{ margin: "0 0 10px 5px" }}>FAQs</h3>
+								<CampaignAccordion campaign={campaign} />
+							</Paper>
+						)}
 				</Grid>
 			</Grid>
 		</Box>

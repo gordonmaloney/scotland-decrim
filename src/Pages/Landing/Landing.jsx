@@ -36,7 +36,7 @@ const Landing = () => {
 						key={campaign.campaign.id}
 						sx={{
 							display: "inline-block",
-							maxWidth: 270,
+							maxWidth: 400,
 							backgroundColor: "#F0F5FA",
 							margin: "auto",
 							boxShadow: 3,

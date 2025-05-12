@@ -133,12 +133,12 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 
 	//PROMPT LOGIC
 	const addPrompt = (prompt) => {
-		if (promptAnswers[prompt.id] !== undefined) {
+		if (promptAnswers[prompt.id] !== "") {
 			setNewTemplate((old) =>
-				old.replace(`<<${prompt.id}>>`, promptAnswers[prompt.id])
+				old.replace(`<<${prompt.id}>>`, `${promptAnswers[prompt.id]}`)
 			);
 		} else {
-			setNewTemplate((old) => old.replace(`<<${prompt.id}>>`, ""));
+			setNewTemplate((old) => old.replace(`\n<<${prompt.id}>>\n`, ""));
 		}
 	};
 

@@ -34,11 +34,8 @@ export const SendModal = ({
 	setNoClient,
 	setSent,
 	sent,
-	copyIn
+	copyIn,
 }) => {
-
-
-	
 	const handleSend = (prop) => {
 		const bcc = campaign.bcc;
 		//check for channel, compile everything
@@ -82,22 +79,22 @@ export const SendModal = ({
 		//setIsShareOpen(true);
 	};
 
-		const [copied, setCopied] = useState(false);
+	const [copied, setCopied] = useState(false);
 
-		const handleCopy = async () => {
-			try {
-				// Copy the current page URL to the clipboard
-				await navigator.clipboard.writeText(window.location.href);
-				// Show the tooltip with "Copied" message
-				setCopied(true);
-				// Hide the tooltip after 3 seconds
-				setTimeout(() => {
-					setCopied(false);
-				}, 2000);
-			} catch (err) {
-				console.error("Failed to copy: ", err);
-			}
-		};
+	const handleCopy = async () => {
+		try {
+			// Copy the current page URL to the clipboard
+			await navigator.clipboard.writeText(window.location.href);
+			// Show the tooltip with "Copied" message
+			setCopied(true);
+			// Hide the tooltip after 3 seconds
+			setTimeout(() => {
+				setCopied(false);
+			}, 2000);
+		} catch (err) {
+			console.error("Failed to copy: ", err);
+		}
+	};
 	return (
 		<Modal open={isOpen} onClose={onClose}>
 			<Box style={ModalStyle}>
@@ -173,7 +170,7 @@ export const SendModal = ({
 						<center>
 							<Button
 								onClick={() => handleSend()}
-								style={{ ...BtnStyleSmall, marginTop: "5px" }}
+								style={{ ...BtnStyle, marginTop: "5px" }}
 							>
 								Send {campaign.channel === "email" ? "email" : "tweet"}
 							</Button>
@@ -222,7 +219,7 @@ export const SendModal = ({
 						</p>
 						<div style={{ display: "flex", justifyContent: "space-around" }}>
 							<Button
-								sx={BtnStyleSmall}
+								sx={BtnStyle}
 								target="_blank"
 								href={`http://wa.me/?text=${encodeURI(
 									"Hey! I've just taken part in this campaign - check it out here: " +
@@ -234,7 +231,7 @@ export const SendModal = ({
 								Share on WhatsApp
 							</Button>
 							<Button
-								sx={BtnStyleSmall}
+								sx={BtnStyle}
 								target="_blank"
 								href={`https://bsky.app/intent/compose?text=${encodeURI(
 									campaign.title + " " + window.location.href
@@ -277,12 +274,21 @@ export const SendModal = ({
 							</Tooltip>{" "}
 							to copy the link and share it with your friends!
 						</p>
+
+						<span style={{ fontSize: "12px" }}>
+							<em>
+								Didn't work? If your email client didn't open, you can use{" "}
+								<span onClick={() => setNoClient(true)}>
+									<u>copy & paste instead.</u>
+								</span>
+							</em>
+						</span>
 					</>
 				)}
 
 				<center>
 					<Button
-						sx={{ ...BtnStyleSmall, transform: "scale(0.8)", marginTop: "5px" }}
+						sx={{ ...BtnStyle, transform: "scale(0.8)", marginTop: "5px" }}
 						onClick={onClose}
 					>
 						Close
