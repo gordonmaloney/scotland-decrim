@@ -82,7 +82,7 @@ const FetchTarget = ({
 					let correctedScotConstituency;
 
 					if (code == "S16000149") {
-					//	correctedScotConstituency = "Coatbridge and Chryston";
+						correctedScotConstituency = "Coatbridge and Chryston";
 					}
 					if (code == "S16000150") {
 						correctedScotConstituency = "Glasgow Provan";
