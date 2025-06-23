@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { Modal, Button, Box, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { BtnStyle, BtnStyleSmall } from "../../MUIStyles";
+import { BtnStyle, BtnStyleSmall, BtnStyleTiny } from "../../MUIStyles";
 import Grid from "@mui/material/Grid2";
 import { webmailProviders } from "./webmailProviders";
 
@@ -38,7 +38,7 @@ export const SendModal = ({
 	copyIn,
 	emailClient,
 }) => {
-	const generateLink = () => {
+	const generateLink = (forceMailto) => {
 		// 1) Build the to-list
 		const toList = messaging.map((t) => t.email).join(",");
 
@@ -50,7 +50,7 @@ export const SendModal = ({
 
 		let sendLink;
 
-		if (providerConfig) {
+		if (!forceMailto && providerConfig) {
 			// 4a) Web-mail URL builder handles encoding + optional bcc
 			sendLink = providerConfig.composeUrl(
 				toList,
@@ -169,8 +169,28 @@ export const SendModal = ({
 								//onClick={() => handleSend()}
 								style={{ ...BtnStyle, marginTop: "5px" }}
 							>
-								Send {campaign.channel === "email" ? "email" : "tweet"}
+								Send{" "}
+								{campaign.channel === "email"
+									? `email${
+											emailClient !== "null" &&
+											emailClient !== "mobile" &&
+											` with ${emailClient}`
+									  }`
+									: "tweet"}
 							</Button>
+							{!Mobile && campaign.channel === "email" && (
+								<div>
+									<Button
+										href={generateLink(true)}
+										target="_blank"
+										rel="noopener noreferrer"
+										//onClick={() => handleSend()}
+										style={{ ...BtnStyleTiny, marginTop: "5px" }}
+									>
+										Send with your native email app
+									</Button>
+								</div>
+							)}
 						</center>
 						{/*
 						{!Mobile && campaign.channel === "email" && (

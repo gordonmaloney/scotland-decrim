@@ -31,6 +31,24 @@ export const BtnStyleSmall = {
 	},
 };
 
+export const BtnStyleTiny = {
+	fontSize: "small",
+	//textTransform: "none",
+	fontWeight: "600",
+	borderRadius: "10px",
+	color: "var(--secondary-color)",
+	backgroundColor: "var(--button-color)",
+	border: "1px solid var(--button-color)",
+	"&:hover, &:active": {
+		backgroundColor: "var(--secondary-color)",
+		color: "var(--button-color)",
+	},
+	"&:disabled": {
+		color: "var(--button-disabled-color)",
+		backgroundColor: "var(--button-disabled-background)",
+	},
+};
+
 
 export const CheckBoxStyle = {
 	color: "var(--button-color)", // Default color for the checkbox
