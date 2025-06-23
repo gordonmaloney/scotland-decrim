@@ -1,7 +1,7 @@
 export const BtnStyle = {
 	fontSize: "large",
-	textTransform: "none",
-	fontWeight: "600",
+	//textTransform: "none",
+	fontWeight: "800",
 	borderRadius: "10px",
 	color: "var(--secondary-color)",
 	backgroundColor: "var(--button-color)",
@@ -15,8 +15,8 @@ export const BtnStyle = {
 
 export const BtnStyleSmall = {
 	fontSize: "medium",
-	textTransform: "none",
-	fontWeight: "300",
+	//textTransform: "none",
+	fontWeight: "600",
 	borderRadius: "10px",
 	color: "var(--secondary-color)",
 	backgroundColor: "var(--button-color)",

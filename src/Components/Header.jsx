@@ -8,10 +8,8 @@ const Header = () => {
 			<h2 style={{ paddingLeft: "1.5%" }}>
 				<Link to="../" style={{ textDecoration: "none", color: "inherit" }}>
 					
-					<img
-						height="50px"
-						style={{marginTop: '10px'}}
-						src="https://scotlandfordecrim.org/wp-content/uploads/2024/11/Scotland-For-Decrim-Header-Logo.svg" />
+				Living Rent - TenantAct
+				
 				</Link>
 			</h2>
 		</div>

@@ -24,13 +24,13 @@ import { TextFieldStyle } from "../../MUIStyles";
 import EditableDiv from "../../Components/EditableDiv";
 
 
-const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
+const Message = ({ campaign, prompts, adminDivisions, postcode, setStage, emailClient }) => {
 	const [Loading, setLoading] = useState(true);
 
 	const [messaging, setMessaging] = useState([]);
 	const [notMessaging, setNotMessaging] = useState([]);
 
-	const [errorMsg, setErrorMsg] = useState('')
+	const [errorMsg, setErrorMsg] = useState("");
 
 	//FETCH REGIONS
 	const [Regions, setRegions] = useState([]);
@@ -76,14 +76,13 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		}
 	}, [campaign]);
 
-	console.log(adminDivisions)
 
 	//ASSIGN TARGETS
 	useEffect(() => {
 		//MSPs
 
 		if (campaign.target == "msps" && !adminDivisions.scotConstituency) {
-			console.log('no scot const')
+			console.log("no scot const");
 			setErrorMsg("No Scottish Constituency found...");
 			setLoading(false);
 		}
@@ -277,7 +276,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		setIsSendOpen(false);
 		setSent(false);
 	};
-	const Mobile = useMediaQuery("(max-width:900px)");
+	const Mobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
 
 	const [copyIn, setCopyIn] = useState(false);
 
@@ -301,19 +300,29 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		]
 	);
 
+
+
+	useEffect(() => {
+		if (campaign.target == "custom") {
+			setMessaging(campaign.customTarget);
+			setLoading(false);
+		}
+	}, [campaign]);
+
+
+	
 	if (Loading) {
 		return <></>;
 	}
 
 
-	console.log(Loading)
-
-	
 	if (errorMsg !== "") {
-		return <>
-		Sorry - something has gone wrong while looking up your representative's data. If you could let us know your postcode, we'll try to get it fixed! 
-		</>;
-
+		return (
+			<>
+				Sorry - something has gone wrong while looking up your representative's
+				data. If you could let us know your postcode, we'll try to get it fixed!
+			</>
+		);
 	}
 
 	return (
@@ -362,21 +371,35 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 						>
 							{messaging.map((msp) => (
 								<Chip
-									label={msp.name + " - " + msp.party}
+									label={`${msp.name} ${
+										campaign.customTarget ? "" : ` - ${msp.party}`
+									}`}
 									variant="outlined"
 									sx={{ margin: "2px" }}
-									onClick={() => {
-										setMessaging((prev) =>
-											prev.filter((prevTarget) => prevTarget.name !== msp.name)
-										);
-										setNotMessaging((prev) => [...prev, msp]);
-									}}
-									onDelete={() => {
-										setMessaging((prev) =>
-											prev.filter((prevTarget) => prevTarget.name !== msp.name)
-										);
-										setNotMessaging((prev) => [...prev, msp]);
-									}}
+									onClick={
+										campaign.target !== "custom"
+											? () => {
+													setMessaging((prev) =>
+														prev.filter(
+															(prevTarget) => prevTarget.name !== msp.name
+														)
+													);
+													setNotMessaging((prev) => [...prev, msp]);
+											  }
+											: undefined
+									}
+									onDelete={
+										campaign.target !== "custom"
+											? () => {
+													setMessaging((prev) =>
+														prev.filter(
+															(prevTarget) => prevTarget.name !== msp.name
+														)
+													);
+													setNotMessaging((prev) => [...prev, msp]);
+											  }
+											: undefined
+									}
 								></Chip>
 							))}
 
@@ -438,7 +461,9 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 											{notMessaging.map((msp) => (
 												<Chip
 													size="small"
-													label={msp.name + " - " + msp.party}
+													label={`${msp.name} ${
+														campaign.customTarget ? "" : ` - ${msp.party}`
+													}`}
 													variant="outlined"
 													sx={{ backgroundColor: "white", margin: "2px" }}
 													deleteIcon={
@@ -575,6 +600,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 				sent={sent}
 				setSent={setSent}
 				copyIn={copyIn}
+				emailClient={emailClient}
 			/>
 		</div>
 	);

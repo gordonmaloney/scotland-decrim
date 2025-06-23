@@ -3,6 +3,7 @@ import { Modal, Button, Box, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { BtnStyle, BtnStyleSmall } from "../../MUIStyles";
 import Grid from "@mui/material/Grid2";
+import { webmailProviders } from "./webmailProviders";
 
 const ModalStyle = {
 	position: "absolute",
@@ -35,48 +36,40 @@ export const SendModal = ({
 	setSent,
 	sent,
 	copyIn,
+	emailClient,
 }) => {
-	const handleSend = (prop) => {
-		const bcc = campaign.bcc;
-		//check for channel, compile everything
+	const generateLink = () => {
+		// 1) Build the to-list
+		const toList = messaging.map((t) => t.email).join(",");
 
-		if (campaign.channel == "email" && prop !== "gmail" && prop !== "yahoo") {
-			let sendLink = `mailto:${messaging.map(
-				(targ) => targ.email + `,`
-			)}?subject=${encodeURIComponent(newSubject)}&bcc=${
-				bcc && copyIn ? bcc : ""
-			}&body=${encodeURIComponent(newTemplate)}`;
+		// 2) Only include bcc if copyIn is true
+		const effectiveBcc = copyIn ? campaign.bcc : "";
 
-			window.open(sendLink);
+		// 3) Pick a provider (or undefined)
+		const providerConfig = webmailProviders.find((p) => p.name === emailClient);
+
+		let sendLink;
+
+		if (providerConfig) {
+			// 4a) Web-mail URL builder handles encoding + optional bcc
+			sendLink = providerConfig.composeUrl(
+				toList,
+				newSubject,
+				newTemplate,
+				effectiveBcc
+			);
+		} else {
+			// 4b) mailto: fallback
+			const params = new URLSearchParams();
+			if (newSubject) params.set("subject", newSubject);
+			if (newTemplate) params.set("body", newTemplate);
+			if (effectiveBcc) params.set("bcc", effectiveBcc);
+
+			sendLink = `mailto:${toList}?${params.toString()}`;
 		}
 
-		if (campaign.channel == "email" && prop == "gmail") {
-			let sendLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${messaging.map(
-				(targ) => targ.email + `,`
-			)}&su=${encodeURIComponent(newSubject)}&bcc=${
-				bcc && copyIn ? bcc : ""
-			}&body=${encodeURIComponent(newTemplate)}`;
-			window.open(sendLink);
-		}
-
-		if (campaign.channel == "email" && prop == "yahoo") {
-			let sendLink = `http://compose.mail.yahoo.com/?To=${messaging.map(
-				(targ) => targ.email + `,`
-			)}&Subject=${encodeURIComponent(newSubject)}&bcc=${
-				bcc && copyIn ? bcc : ""
-			}&Body=${encodeURIComponent(
-				newTemplate.replace("%", "%25").replace(/\n/g, "%0A") + "%0A%0A"
-			)}`;
-			window.open(sendLink);
-		}
-
-		setTimeout(() => {
-			setSent(true);
-		}, [2000]);
-
-		//onSendClose();
-
-		//setIsShareOpen(true);
+		// 5) return link
+		return sendLink;
 	};
 
 	const [copied, setCopied] = useState(false);
@@ -95,6 +88,7 @@ export const SendModal = ({
 			console.error("Failed to copy: ", err);
 		}
 	};
+
 	return (
 		<Modal open={isOpen} onClose={onClose}>
 			<Box style={ModalStyle}>
@@ -169,12 +163,16 @@ export const SendModal = ({
 						</p>
 						<center>
 							<Button
-								onClick={() => handleSend()}
+								href={generateLink()}
+								target="_blank"
+								rel="noopener noreferrer"
+								//onClick={() => handleSend()}
 								style={{ ...BtnStyle, marginTop: "5px" }}
 							>
 								Send {campaign.channel === "email" ? "email" : "tweet"}
 							</Button>
 						</center>
+						{/*
 						{!Mobile && campaign.channel === "email" && (
 							<>
 								<br />
@@ -186,13 +184,15 @@ export const SendModal = ({
 									style={{ display: "flex", justifyContent: "space-around" }}
 								>
 									<Button
-										onClick={() => handleSend("gmail")}
+										href={generateLink()}
+										//onClick={() => handleSend()}
 										style={{ ...BtnStyleSmall, marginTop: "5px" }}
 									>
 										Send via Gmail
 									</Button>
 									<Button
-										onClick={() => handleSend("yahoo")}
+										href={generateLink()}
+										//onClick={() => handleSend()}
 										style={{ ...BtnStyleSmall, marginTop: "5px" }}
 									>
 										Send via Yahoo
@@ -200,6 +200,7 @@ export const SendModal = ({
 								</div>
 							</>
 						)}
+							*/}
 						<br />
 						<span style={{ fontSize: "12px" }}>
 							<em>
