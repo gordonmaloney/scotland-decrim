@@ -15,102 +15,50 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
-import { SendModal } from "./SendModal";
+import { SendModal } from "../SendModal";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { BtnStyleSmall, BtnStyle, CheckBoxStyle } from "../../MUIStyles";
-import { TextFieldStyle } from "../../MUIStyles";
-import EditableDiv from "../../Components/EditableDiv";
+import { BtnStyleSmall, BtnStyle, CheckBoxStyle } from "../../../MUIStyles";
+import { TextFieldStyle } from "../../../MUIStyles";
+import EditableDiv from "../../../Components/EditableDiv";
 
+import { useDefaultTargetting } from "./useDefaultTargetting";
+import { useCustomTargetting } from "./useCustomTargetting";
 
-const Message = ({ campaign, prompts, adminDivisions, postcode, setStage, emailClient }) => {
+const Message = ({
+	campaign,
+	prompts,
+	adminDivisions,
+	postcode,
+	setStage,
+	emailClient,
+}) => {
 	const [Loading, setLoading] = useState(true);
-
 	const [messaging, setMessaging] = useState([]);
 	const [notMessaging, setNotMessaging] = useState([]);
-
 	const [errorMsg, setErrorMsg] = useState("");
 
-	//FETCH REGIONS
-	const [Regions, setRegions] = useState([]);
-	useEffect(() => {
-		if (campaign.target === "msps") {
-			const load = async () => {
-				try {
-					const response = await fetch(
-						"https://raw.githubusercontent.com/gordonmaloney/rep-data/main/REGIONS.json"
-					);
-					if (!response.ok) {
-						throw new Error("Failed to fetch regions");
-					}
-					const data = await response.json();
-					setRegions(data);
-				} catch (err) {
-					console.error("Could not load regions:", err);
-				}
-			};
-			load();
-		}
-	}, [campaign]);
+	const [newSubject, setNewSubject] = useState(campaign.subject);
 
-	//FETCH MSPs
-	const [MSPs, setMSPs] = useState([]);
-	useEffect(() => {
-		if (campaign.target === "msps") {
-			const load = async () => {
-				try {
-					const response = await fetch(
-						"https://raw.githubusercontent.com/gordonmaloney/rep-data/main/MSPs.json"
-					);
-					if (!response.ok) {
-						throw new Error("Failed to fetch MSPs");
-					}
-					const data = await response.json();
-					setMSPs(data);
-				} catch (err) {
-					console.error("Could not load MSPs:", err);
-				}
-			};
-			load();
-		}
-	}, [campaign]);
+	//SET TARGET via default hook
+	useDefaultTargetting(campaign, adminDivisions, {
+		setLoading,
+		setMessaging,
+		setNotMessaging,
+		setErrorMsg,
+	});
 
+	//SET TARGET via custom hook if present
+	useCustomTargetting(campaign.customTargetting, {
+		setLoading,
+		setMessaging,
+		setNotMessaging,
+		setErrorMsg,
+	});
 
-	//ASSIGN TARGETS
-	useEffect(() => {
-		//MSPs
+	console.log(errorMsg)
 
-		if (campaign.target == "msps" && !adminDivisions.scotConstituency) {
-			console.log("no scot const");
-			setErrorMsg("No Scottish Constituency found...");
-			setLoading(false);
-		}
-
-		if (
-			adminDivisions.scotConstituency &&
-			campaign.target == "msps" &&
-			Regions.length > 1 &&
-			MSPs.length > 1
-		) {
-			console.log("setting...");
-			let constituency = adminDivisions.scotConstituency;
-			let region = Regions.filter(
-				(region) => region.constituency == constituency
-			)[0].region;
-
-			if (campaign.target == "msps" && Regions.length > 1 && MSPs.length > 1) {
-				setMessaging(
-					MSPs.filter(
-						(msp) =>
-							msp.constituency == adminDivisions.scotConstituency ||
-							msp.constituency == region
-					)
-				);
-				setLoading(false);
-			}
-		}
-	}, [adminDivisions, Regions, MSPs]);
 
 	const promptsChanged = false;
 	const { template } = campaign;
@@ -251,22 +199,17 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage, emailC
 		}
 	};
 
-	//OTHER EMAIL LOGIC
-	const [newSubject, setNewSubject] = useState(campaign.subject);
-
 	useEffect(() => {
-		if (1 == 1) {
-			campaign.prompts
-				.filter((prompt) => prompt.answerType == "text")
-				.map((prompt) => {
-					addPrompt(prompt);
-				});
-			campaign.prompts
-				.filter((prompt) => prompt.answerType == "yesno")
-				.map((prompt) => {
-					addCondition(prompt);
-				});
-		}
+		campaign.prompts
+			.filter((prompt) => prompt.answerType == "text")
+			.map((prompt) => {
+				addPrompt(prompt);
+			});
+		campaign.prompts
+			.filter((prompt) => prompt.answerType == "yesno")
+			.map((prompt) => {
+				addCondition(prompt);
+			});
 	}, [campaign.prompts]);
 
 	const [sent, setSent] = useState(false);
@@ -300,21 +243,21 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage, emailC
 		]
 	);
 
-
-
 	useEffect(() => {
-		if (campaign.target == "custom") {
+		if (campaign.customTarget) {
 			setMessaging(campaign.customTarget);
 			setLoading(false);
 		}
 	}, [campaign]);
 
 
-	
+
+	console.log("messaging: " + messaging);
+
+
 	if (Loading) {
 		return <></>;
 	}
-
 
 	if (errorMsg !== "") {
 		return (
@@ -324,6 +267,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage, emailC
 			</>
 		);
 	}
+
 
 	return (
 		<div>

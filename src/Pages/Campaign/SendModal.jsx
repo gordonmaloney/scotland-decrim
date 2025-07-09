@@ -172,25 +172,27 @@ export const SendModal = ({
 								Send{" "}
 								{campaign.channel === "email"
 									? `email${
-											emailClient !== "null" &&
-											emailClient !== "mobile" &&
-											` with ${emailClient}`
+											emailClient !== null && emailClient !== "mobile"
+												? ` with ${emailClient}`
+												: ""
 									  }`
 									: "tweet"}
 							</Button>
-							{!Mobile && campaign.channel === "email" && (
-								<div>
-									<Button
-										href={generateLink(true)}
-										target="_blank"
-										rel="noopener noreferrer"
-										//onClick={() => handleSend()}
-										style={{ ...BtnStyleTiny, marginTop: "5px" }}
-									>
-										Send with your native email app
-									</Button>
-								</div>
-							)}
+							{!Mobile &&
+								campaign.channel === "email" &&
+								emailClient !== null && (
+									<div>
+										<Button
+											href={generateLink(true)}
+											target="_blank"
+											rel="noopener noreferrer"
+											//onClick={() => handleSend()}
+											style={{ ...BtnStyleTiny, marginTop: "5px" }}
+										>
+											Send with your native email app
+										</Button>
+									</div>
+								)}
 						</center>
 						{/*
 						{!Mobile && campaign.channel === "email" && (

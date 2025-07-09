@@ -4,7 +4,7 @@ import FetchTarget from "./FetchTarget";
 
 
 import Prompts from "./Prompts";
-import Message from "./Message";
+import Message from "./Message/Message";
 import { Tooltip, Button, TextField } from "@mui/material";
 import { BtnStyleSmall, TextFieldStyle } from "../../MUIStyles";
 
