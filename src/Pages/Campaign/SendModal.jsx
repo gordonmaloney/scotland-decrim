@@ -1,8 +1,10 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Modal, Button, Box, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { BtnStyle, BtnStyleSmall } from "../../MUIStyles";
+import { BtnStyle, BtnStyleSmall, BtnStyleTiny } from "../../MUIStyles";
 import Grid from "@mui/material/Grid2";
+import { webmailProviders } from "./webmailProviders";
+import { Stack } from "@mui/material";
 
 const ModalStyle = {
 	position: "absolute",
@@ -35,48 +37,56 @@ export const SendModal = ({
 	setSent,
 	sent,
 	copyIn,
+	emailClient,
 }) => {
-	const handleSend = (prop) => {
-		const bcc = campaign.bcc;
-		//check for channel, compile everything
-
-		if (campaign.channel == "email" && prop !== "gmail" && prop !== "yahoo") {
-			let sendLink = `mailto:${messaging.map(
-				(targ) => targ.email + `,`
-			)}?subject=${encodeURIComponent(newSubject)}&bcc=${
-				bcc && copyIn ? bcc : ""
-			}&body=${encodeURIComponent(newTemplate)}`;
-
-			window.open(sendLink);
+	const generateLink = (forceMailto) => {
+		if (campaign.channel == "twitter") {
+			return;
 		}
 
-		if (campaign.channel == "email" && prop == "gmail") {
-			let sendLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${messaging.map(
-				(targ) => targ.email + `,`
-			)}&su=${encodeURIComponent(newSubject)}&bcc=${
-				bcc && copyIn ? bcc : ""
-			}&body=${encodeURIComponent(newTemplate)}`;
-			window.open(sendLink);
+		// 1) Build the to-list
+		const toList = messaging.map((t) => t.email).join(",");
+
+		// 2) Only include bcc if copyIn is true
+		const effectiveBcc = copyIn ? campaign.bcc : "";
+
+		// 3) Pick a provider (or undefined)
+		const providerConfig = webmailProviders.find((p) => p.name === emailClient);
+
+		let sendLink;
+
+		if (!forceMailto && providerConfig) {
+			// 4a) Web-mail URL builder handles encoding + optional bcc
+			sendLink = providerConfig.composeUrl(
+				toList,
+				newSubject,
+				newTemplate,
+				effectiveBcc
+			);
+		} else {
+			// 4b) mailto: fallback
+			const query = [];
+			if (newSubject) query.push(`subject=${encodeURIComponent(newSubject)}`);
+			if (newTemplate) query.push(`body=${encodeURIComponent(newTemplate)}`);
+			if (effectiveBcc) query.push(`bcc=${encodeURIComponent(effectiveBcc)}`);
+
+			sendLink = `mailto:${toList}${query.length ? "?" + query.join("&") : ""}`;
 		}
 
-		if (campaign.channel == "email" && prop == "yahoo") {
-			let sendLink = `http://compose.mail.yahoo.com/?To=${messaging.map(
-				(targ) => targ.email + `,`
-			)}&Subject=${encodeURIComponent(newSubject)}&bcc=${
-				bcc && copyIn ? bcc : ""
-			}&Body=${encodeURIComponent(
-				newTemplate.replace("%", "%25").replace(/\n/g, "%0A") + "%0A%0A"
-			)}`;
-			window.open(sendLink);
-		}
+		// 5) return link
+		return sendLink;
+	};
 
-		setTimeout(() => {
-			setSent(true);
-		}, [2000]);
+	const handleTwitterSend = () => {
+		const url =
+			"https://x.com/intent/post?text=" + encodeURIComponent(newTemplate);
 
-		//onSendClose();
-
-		//setIsShareOpen(true);
+		// open a 500×400 popup, no toolbar/menubar, but resizable & scrollable
+		window.open(
+			url,
+			"_blank",
+			"width=500,height=400,toolbar=0,menubar=0,location=0,resizable=1,scrollbars=1,status=0"
+		);
 	};
 
 	const [copied, setCopied] = useState(false);
@@ -95,6 +105,7 @@ export const SendModal = ({
 			console.error("Failed to copy: ", err);
 		}
 	};
+
 	return (
 		<Modal open={isOpen} onClose={onClose}>
 			<Box style={ModalStyle}>
@@ -163,18 +174,48 @@ export const SendModal = ({
 					<>
 						<p>
 							You're almost there. Press the button below to open your{" "}
-							{campaign.channel === "email" ? "email" : "Twitter"} client, and
+							{campaign.channel === "email" ? "email" : "Twitter/X"} client, and
 							the message will be pre-filled in there for you. Then just hit
 							send in there to fire it off.
 						</p>
 						<center>
 							<Button
-								onClick={() => handleSend()}
+								href={generateLink()}
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={() => {
+									setSent(true);
+									if (campaign.channel == "twitter") handleTwitterSend();
+								}}
 								style={{ ...BtnStyle, marginTop: "5px" }}
 							>
-								Send {campaign.channel === "email" ? "email" : "tweet"}
+								Send{" "}
+								{campaign.channel === "email"
+									? `email${
+											emailClient && emailClient !== "mobile"
+												? ` with ${
+														emailClient.charAt(0).toUpperCase() +
+														emailClient.slice(1)
+												  }`
+												: ""
+									  }`
+									: "tweet"}
 							</Button>
+							{!Mobile && campaign.channel === "email" && emailClient && (
+								<div>
+									<Button
+										href={generateLink(true)}
+										target="_blank"
+										rel="noopener noreferrer"
+										onClick={() => setSent(true)}
+										style={{ ...BtnStyleSmall, marginTop: "5px" }}
+									>
+										Send with your email app
+									</Button>
+								</div>
+							)}
 						</center>
+						{/*
 						{!Mobile && campaign.channel === "email" && (
 							<>
 								<br />
@@ -186,13 +227,15 @@ export const SendModal = ({
 									style={{ display: "flex", justifyContent: "space-around" }}
 								>
 									<Button
-										onClick={() => handleSend("gmail")}
+										href={generateLink()}
+										//onClick={() => handleSend()}
 										style={{ ...BtnStyleSmall, marginTop: "5px" }}
 									>
 										Send via Gmail
 									</Button>
 									<Button
-										onClick={() => handleSend("yahoo")}
+										href={generateLink()}
+										//onClick={() => handleSend()}
 										style={{ ...BtnStyleSmall, marginTop: "5px" }}
 									>
 										Send via Yahoo
@@ -200,8 +243,14 @@ export const SendModal = ({
 								</div>
 							</>
 						)}
+							*/}
 						<br />
-						<span style={{ fontSize: "12px" }}>
+						<span
+							style={{
+								fontSize: "12px",
+								display: campaign.channel !== "twitter" ? "block" : "none",
+							}}
+						>
 							<em>
 								Not working?{" "}
 								<span onClick={() => setNoClient(true)}>
@@ -218,27 +267,51 @@ export const SendModal = ({
 							can use the buttons below:
 						</p>
 						<div style={{ display: "flex", justifyContent: "space-around" }}>
-							<Button
-								sx={BtnStyle}
-								target="_blank"
-								href={`http://wa.me/?text=${encodeURI(
-									"Hey! I've just taken part in this campaign - check it out here: " +
-										campaign.title +
-										" " +
-										window.location.href
-								)}`}
+							<Stack
+								direction="row"
+								justifyContent="center"
+								flexWrap="wrap" // so buttons drop to the next line on small screens
 							>
-								Share on WhatsApp
-							</Button>
+								<Button
+									sx={{ ...BtnStyle, margin: "10px 10px" }}
+									target="_blank"
+									href={`http://wa.me/?text=${encodeURI(
+										"Hey! I've just taken part in this campaign - check it out here: " +
+											campaign.title +
+											" " +
+											window.location.href
+									)}`}
+								>
+									Share on WhatsApp
+								</Button>
+								<Button
+									sx={{ ...BtnStyle, margin: "10px 10px" }}
+									target="_blank"
+									href={`https://bsky.app/intent/compose?text=${encodeURI(
+										campaign.title + " " + window.location.href
+									)}`}
+								>
+									Share on BlueSky
+								</Button>
+
+								{/*  This is for the fb messenger share
+Need app ID or something
+TODO: explore this
+{Mobile && 
+
 							<Button
-								sx={BtnStyle}
-								target="_blank"
-								href={`https://bsky.app/intent/compose?text=${encodeURI(
-									campaign.title + " " + window.location.href
-								)}`}
-							>
-								Share on BlueSky
-							</Button>
+							sx={{...BtnStyle, margin: '10px 10px'}}
+							target="_blank"
+  href={
+    `fb-messenger://share?link=${encodeURIComponent(
+      campaign.title + " " + window.location.href
+    )}`
+  }
+>
+  Share on Messenger
+</Button>}
+*/}
+							</Stack>
 						</div>
 
 						<p>
@@ -275,7 +348,12 @@ export const SendModal = ({
 							to copy the link and share it with your friends!
 						</p>
 
-						<span style={{ fontSize: "12px" }}>
+						<span
+							style={{
+								fontSize: "12px",
+								display: campaign.channel !== "twitter" ? "block" : "none",
+							}}
+						>
 							<em>
 								Didn't work? If your email client didn't open, you can use{" "}
 								<span onClick={() => setNoClient(true)}>

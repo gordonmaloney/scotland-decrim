@@ -12,6 +12,9 @@ import {
 	Tooltip,
 	Checkbox,
 	FormControlLabel,
+	FormControl,
+	RadioGroup,
+	Radio,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
@@ -23,14 +26,26 @@ import { BtnStyleSmall, BtnStyle, CheckBoxStyle } from "../../MUIStyles";
 import { TextFieldStyle } from "../../MUIStyles";
 import EditableDiv from "../../Components/EditableDiv";
 
+import { submitter } from "../../submitter";
 
-const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
+const OPTIN_TEXT =
+	"Can we add you to the Scotland for Decrim email list, so we can keep you up to date with the campaign and our work?";
+
+const Message = ({
+	campaign,
+	prompts,
+	adminDivisions,
+	postcode,
+	setStage,
+	emailClient,
+	userEmail
+}) => {
 	const [Loading, setLoading] = useState(true);
 
 	const [messaging, setMessaging] = useState([]);
 	const [notMessaging, setNotMessaging] = useState([]);
 
-	const [errorMsg, setErrorMsg] = useState('')
+	const [errorMsg, setErrorMsg] = useState("");
 
 	//FETCH REGIONS
 	const [Regions, setRegions] = useState([]);
@@ -76,14 +91,14 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		}
 	}, [campaign]);
 
-	console.log(adminDivisions)
+	console.log(adminDivisions);
 
 	//ASSIGN TARGETS
 	useEffect(() => {
 		//MSPs
 
 		if (campaign.target == "msps" && !adminDivisions.scotConstituency) {
-			console.log('no scot const')
+			console.log("no scot const");
 			setErrorMsg("No Scottish Constituency found...");
 			setLoading(false);
 		}
@@ -96,6 +111,8 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		) {
 			console.log("setting...");
 			let constituency = adminDivisions.scotConstituency;
+			console.log("constit: " + constituency);
+			console.log(Regions);
 			let region = Regions.filter(
 				(region) => region.constituency == constituency
 			)[0].region;
@@ -279,7 +296,18 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 	};
 	const Mobile = useMediaQuery("(max-width:900px)");
 
-	const [copyIn, setCopyIn] = useState(false);
+	//TRACKING LOGIC
+	const [copyIn, setCopyIn] = useState(true);
+	const handleUnBcc = () => {
+		setCopyIn(false);
+	};
+
+	const [optIn, setOptIn] = useState(undefined);
+	const [gdprPrompt, setGdprPrompt] = useState(false);
+
+	const handleSendClicked = () => {
+		setGdprPrompt(true);
+	};
 
 	const editableDivProps = useMemo(
 		() => ({
@@ -305,15 +333,13 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 		return <></>;
 	}
 
-
-	console.log(Loading)
-
-	
 	if (errorMsg !== "") {
-		return <>
-		Sorry - something has gone wrong while looking up your representative's data. If you could let us know your postcode, we'll try to get it fixed! 
-		</>;
-
+		return (
+			<>
+				Sorry - something has gone wrong while looking up your representative's
+				data. If you could let us know your postcode, we'll try to get it fixed!
+			</>
+		);
 	}
 
 	return (
@@ -479,6 +505,81 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 				</>
 			)}
 
+			{/* BCCing */}
+			<Box
+				sx={{
+					position: "relative",
+					marginTop: 2,
+					marginBottom: "14px",
+
+					width: "100%",
+					"&:focus-within .paperBorder": {
+						outline: "2px solid #3f51b5", // Color for focus state
+						outlineOffset: "-2px",
+					},
+				}}
+			>
+				<label
+					style={{
+						fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+
+						position: "absolute",
+						top: "-9px",
+						left: "8px",
+						fontSize: "0.78rem",
+						fontWeight: "320",
+						color: "rgba(0,0,0,0.6)",
+						backgroundColor: "rgba(246, 243, 246, 1)",
+						padding: "0 5px",
+						transition: "top 0.2s, font-size 0.2s, color 0.2s",
+					}}
+				>
+					BCC
+				</label>
+
+				<Paper
+					sx={{
+						...TextFieldStyle,
+						margin: "1px 0 7px 0",
+						padding: "5px",
+						paddingY: "15px",
+						border: "1px solid lightgray",
+					}}
+				>
+					{copyIn ? (
+						<Chip
+							key={"scot4decrim"}
+							label={`Scotland for Decrim`}
+							variant="outlined"
+							sx={{ margin: "2px" }}
+							onClick={() => {
+								handleUnBcc();
+							}}
+							onDelete={() => {
+								handleUnBcc();
+							}}
+						/>
+					) : (
+						<span
+							style={{
+								marginLeft: "10px",
+								display: "inline-block",
+								fontStyle: "italic",
+							}}
+						>
+							Are you sure? By copying in Scotland for Decrim, your story can
+							help shape our campaign.{" "}
+							<span
+								onClick={() => setCopyIn(true)}
+								style={{ cursor: "pointer" }}
+							>
+								<u>Add Scotland for Decrim back into BCC.</u>
+							</span>
+						</span>
+					)}
+				</Paper>
+			</Box>
+
 			<div style={{ position: "relative" }}>
 				<div style={{}}>
 					<EditableDiv {...editableDivProps} />
@@ -520,6 +621,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 				}
 			/>
 
+			{/* DEPRECATED 
 			<FormControlLabel
 				sx={{ marginTop: "-10px", display: campaign.bcc ? "" : "none" }}
 				control={
@@ -541,6 +643,64 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					</p>
 				}
 			/>
+			*/}
+
+			<Box
+				sx={{
+					position: "relative",
+					marginTop: 2,
+					marginBottom: "14px",
+					border: optIn == undefined && gdprPrompt && "1px solid red",
+					padding: optIn == undefined && gdprPrompt ? "4px" : 0,
+					width: "100%",
+					"&:focus-within .paperBorder": {
+						outline: "2px solid #3f51b5", // Color for focus state
+						outlineOffset: "-2px",
+					},
+				}}
+			>
+				<div style={{ margin: "10px 0" }}>
+					<FormControl component="fieldset">
+						<div
+							style={{
+								marginTop: "-10px",
+								fontSize: "small",
+								//textAlign: "center",
+							}}
+						>
+							{OPTIN_TEXT}
+						</div>
+						<RadioGroup
+							row
+							value={optIn ? "yes" : optIn == false && "no"}
+							onChange={(e) => setOptIn(e.target.value === "yes")}
+						>
+							<FormControlLabel
+								value="yes"
+								control={<Radio style={CheckBoxStyle} />}
+								label="Yes"
+							/>
+							<FormControlLabel
+								value="no"
+								control={<Radio style={CheckBoxStyle} />}
+								label="No"
+							/>
+						</RadioGroup>
+					</FormControl>
+				</div>
+				{optIn == undefined && gdprPrompt && (
+					<div
+						style={{
+							marginTop: "-10px",
+							fontSize: "small",
+							//textAlign: "center",
+							color: "red",
+						}}
+					>
+						You must select 'yes' or 'no' here.
+					</div>
+				)}
+			</Box>
 
 			<div
 				style={{
@@ -553,7 +713,29 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 					Back
 				</Button>
 
-				<Button sx={BtnStyleSmall} onClick={() => setIsSendOpen(true)}>
+				<Button
+					sx={BtnStyleSmall}
+					onClick={() => {
+						if (optIn == undefined) {
+							handleSendClicked();
+							return;
+						} else {
+							setIsSendOpen(true);
+
+							optIn &&
+								submitter({
+									type: "submission",
+									site: "scot4decrim",
+									campaignId: "Scotland4Decrim",
+									contactDeets: {
+										email: userEmail,
+										postcode: postcode,
+									},
+									testimonial: "blank",
+								});
+						}
+					}}
+				>
 					Send
 				</Button>
 			</div>
@@ -573,6 +755,7 @@ const Message = ({ campaign, prompts, adminDivisions, postcode, setStage }) => {
 				newTemplate={newTemplate}
 				Mobile={Mobile}
 				sent={sent}
+				emailClient={emailClient}
 				setSent={setSent}
 				copyIn={copyIn}
 			/>
