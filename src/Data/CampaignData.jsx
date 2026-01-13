@@ -20,7 +20,7 @@ export const ALL_CAMPAIGNS = [
 				{
 					id: "whyimportant",
 					question:
-						"Say in your own words why sex workers’ rights are important to you:",
+						"Say in your own words why sex workers’ rights are important to you. Your answer to this question will be incorporated into the template email:",
 
 					answerType: "text-multiline",
 					required: false,
