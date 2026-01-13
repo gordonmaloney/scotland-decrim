@@ -22,7 +22,7 @@ export const ALL_CAMPAIGNS = [
 					question:
 						"Say in your own words why sex workers’ rights are important to you:",
 
-					answerType: "text",
+					answerType: "text-multiline",
 					required: false,
 					answer: null,
 				},

@@ -29,12 +29,27 @@ const Prompts = ({ prompts, setPrompts }) => {
 							{prompt.question} {prompt.required && "*"}
 						</div>
 						{
-							//textfield for text type questions
+							//textfield for one-line text type questions
 							prompt.answerType == "text" && (
 								<TextField
 									placeholder="Your answer here..."
 									sx={TextFieldStyle}
 									fullWidth
+									value={prompt.answer || ""}
+									required
+									onChange={(e) => handlePromptAnswerChange(e, prompt)}
+								/>
+							)
+						}
+						{
+							//textfield for multiline text type questions
+							prompt.answerType == "text-multiline" && (
+								<TextField
+									placeholder="Your answer here..."
+									sx={TextFieldStyle}
+									fullWidth
+									multiline
+									rows={4}
 									value={prompt.answer || ""}
 									required
 									onChange={(e) => handlePromptAnswerChange(e, prompt)}
