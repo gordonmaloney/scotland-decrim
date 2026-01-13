@@ -279,6 +279,11 @@ const Message = ({
 				.map((prompt) => {
 					addPrompt(prompt);
 				});
+						campaign.prompts
+							.filter((prompt) => prompt.answerType == "text-multiline")
+							.map((prompt) => {
+								addPrompt(prompt);
+							});
 			campaign.prompts
 				.filter((prompt) => prompt.answerType == "yesno")
 				.map((prompt) => {

@@ -6,7 +6,7 @@ export async function submitter({ campaignId, contactDeets, testimonial }) {
   const body = { type, site, path, campaignId, testimonial, contactDeets };
 
   try {
-    const res = await fetch("https://scot4decrim.vercel.app/api/submission", {
+    const res = await fetch("https://scot4decrim-api.vercel.app/api/submission", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
