@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
-	TextField,
-	Chip,
-	Paper,
-	Accordion,
-	AccordionSummary,
-	AccordionDetails,
-	Box,
-	Button,
-	useMediaQuery,
-	Tooltip,
-	Checkbox,
-	FormControlLabel,
-	FormControl,
-	RadioGroup,
-	Radio,
+  TextField,
+  Chip,
+  Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Box,
+  Button,
+  useMediaQuery,
+  Tooltip,
+  Checkbox,
+  FormControlLabel,
+  FormControl,
+  RadioGroup,
+  Radio,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
@@ -29,24 +29,26 @@ import EditableDiv from "../../Components/EditableDiv";
 import { submitter } from "../../submitter";
 
 const OPTIN_TEXT =
-	"Can we add you to the Scotland for Decrim email list, so we can keep you up to date with the campaign and our work?";
+  "Can we add you to the Scotland for Decrim email list, so we can keep you up to date with the campaign and our work?";
 
 const Message = ({
-	campaign,
-	prompts,
-	adminDivisions,
-	postcode,
-	setStage,
-	emailClient,
-	userEmail
+  campaign,
+  prompts,
+  adminDivisions,
+  postcode,
+  setStage,
+  emailClient,
+  userEmail,
 }) => {
-	const [Loading, setLoading] = useState(true);
+  const [Loading, setLoading] = useState(true);
 
-	const [messaging, setMessaging] = useState([]);
-	const [notMessaging, setNotMessaging] = useState([]);
+  const [messaging, setMessaging] = useState([]);
+  const [notMessaging, setNotMessaging] = useState([]);
 
-	const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
+  /*
+	REGION FETCHING NO LONGER NECESSARY
 	//FETCH REGIONS
 	const [Regions, setRegions] = useState([]);
 	useEffect(() => {
@@ -68,565 +70,569 @@ const Message = ({
 			load();
 		}
 	}, [campaign]);
+*/
 
-	//FETCH MSPs
-	const [MSPs, setMSPs] = useState([]);
-	useEffect(() => {
-		if (campaign.target === "msps") {
-			const load = async () => {
-				try {
-					const response = await fetch(
-						"https://raw.githubusercontent.com/gordonmaloney/rep-data/main/MSPs.json"
-					);
-					if (!response.ok) {
-						throw new Error("Failed to fetch MSPs");
-					}
-					const data = await response.json();
-					setMSPs(data);
-				} catch (err) {
-					console.error("Could not load MSPs:", err);
-				}
-			};
-			load();
-		}
-	}, [campaign]);
 
-	console.log(adminDivisions);
+const DATA_BASE = "https://scotland-constituencies.netlify.app/reps/";
 
-	//ASSIGN TARGETS
-	useEffect(() => {
-		//MSPs
 
-		if (campaign.target == "msps" && !adminDivisions.scotConstituency) {
-			console.log("no scot const");
-			setErrorMsg("No Scottish Constituency found...");
-			setLoading(false);
-		}
+  //FETCH MSPs
+  const [MSPs, setMSPs] = useState([]);
+  useEffect(() => {
+    if (campaign.target === "msps") {
+      const load = async () => {
+        try {
+          const response = await fetch(`${DATA_BASE}/MSPs.json`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch MSPs");
+          }
+          const data = await response.json();
+          setMSPs(data);
+        } catch (err) {
+          console.error("Could not load MSPs:", err);
+        }
+      };
+      load();
+    }
+  }, [campaign]);
 
-		if (
-			adminDivisions.scotConstituency &&
-			campaign.target == "msps" &&
-			Regions.length > 1 &&
-			MSPs.length > 1
-		) {
-			console.log("setting...");
-			let constituency = adminDivisions.scotConstituency;
-			console.log("constit: " + constituency);
-			console.log(Regions);
-			let region = Regions.filter(
-				(region) => region.constituency == constituency
-			)[0].region;
+  console.log(adminDivisions);
 
-			if (campaign.target == "msps" && Regions.length > 1 && MSPs.length > 1) {
-				setMessaging(
-					MSPs.filter(
-						(msp) =>
-							msp.constituency == adminDivisions.scotConstituency ||
-							msp.constituency == region
-					)
-				);
-				setLoading(false);
-			}
-		}
-	}, [adminDivisions, Regions, MSPs]);
+  //ASSIGN TARGETS
+  useEffect(() => {
+    //MSPs
 
-	const promptsChanged = false;
-	const { template } = campaign;
-	const [newTemplate, setNewTemplate] = useState(
-		campaign.template + `\n${postcode.trim().toUpperCase()}`
-	);
+    if (campaign.target == "msps" && !adminDivisions.scotConstituency) {
+      console.log("no scot const");
+      setErrorMsg("No Scottish Constituency found...");
+      setLoading(false);
+    }
 
-	useEffect(() => {
-		if (
-			messaging.length > 0 &&
-			newTemplate &&
-			!newTemplate.startsWith("Dear")
-		) {
-			setNewTemplate(
-				`Dear${messaging.map(
-					(recipient) => ` ` + recipient.name
-				)},\n\n${newTemplate}`
-			);
-		} else if (
-			messaging.length > 0 &&
-			newTemplate &&
-			newTemplate.startsWith("Dear")
-		) {
-		}
-	}, [messaging]);
+    if (
+      adminDivisions.scotConstituency &&
+      campaign.target == "msps" &&
+   //   Regions.length > 1 &&
+      MSPs.length > 1
+    ) {
+      console.log("setting...");
+      let constituency = adminDivisions.scotConstituency;
+      console.log("constit: " + constituency);
+      //console.log(Regions);
+	  let region = adminDivisions.scotRegion;
+     /* let region = Regions.filter(
+        (region) => region.constituency == constituency,
+      )[0].region;
+*/
+      if (campaign.target == "msps" && MSPs.length > 1) {
+        setMessaging(
+          MSPs.filter(
+            (msp) =>
+              msp.constituency == adminDivisions.scotConstituency ||
+              msp.constituency == region,
+          ),
+        );
+        setLoading(false);
+      }
+    }
+  }, [adminDivisions, MSPs]);
 
-	const createPromptAnswers = (prompts) => {
-		return prompts.reduce((acc, prompt) => {
-			acc[prompt.id] = prompt.answer;
-			return acc;
-		}, {});
-	};
-	const promptAnswers = createPromptAnswers(prompts);
+  const promptsChanged = false;
+  const { template } = campaign;
+  const [newTemplate, setNewTemplate] = useState(
+    campaign.template + `\n${postcode.trim().toUpperCase()}`,
+  );
 
-	//PROMPT LOGIC
-	const addPrompt = (prompt) => {
-		if (promptAnswers[prompt.id] !== "") {
-			setNewTemplate((old) =>
-				old.replace(`<<${prompt.id}>>`, `${promptAnswers[prompt.id]}`)
-			);
-		} else {
-			setNewTemplate((old) => old.replace(`\n<<${prompt.id}>>\n`, ""));
-		}
-	};
+  useEffect(() => {
+    if (
+      messaging.length > 0 &&
+      newTemplate &&
+      !newTemplate.startsWith("Dear")
+    ) {
+      setNewTemplate(
+        `Dear${messaging.map(
+          (recipient) => ` ` + recipient.name,
+        )},\n\n${newTemplate}`,
+      );
+    } else if (
+      messaging.length > 0 &&
+      newTemplate &&
+      newTemplate.startsWith("Dear")
+    ) {
+    }
+  }, [messaging]);
 
-	const [extractedStringArray, setExtractedStringArray] = useState([]);
+  const createPromptAnswers = (prompts) => {
+    return prompts.reduce((acc, prompt) => {
+      acc[prompt.id] = prompt.answer;
+      return acc;
+    }, {});
+  };
+  const promptAnswers = createPromptAnswers(prompts);
 
-	const addCondition = (prompt) => {
-		console.log("Processing condition: " + prompt.id);
+  //PROMPT LOGIC
+  const addPrompt = (prompt) => {
+    if (promptAnswers[prompt.id] !== "") {
+      setNewTemplate((old) =>
+        old.replace(`<<${prompt.id}>>`, `${promptAnswers[prompt.id]}`),
+      );
+    } else {
+      setNewTemplate((old) => old.replace(`\n<<${prompt.id}>>\n`, ""));
+    }
+  };
 
-		const promptId = prompt.id;
+  const [extractedStringArray, setExtractedStringArray] = useState([]);
 
-		// Case for undefined (no answer)
-		if (typeof promptAnswers[promptId] == "string") {
-			console.log("No answer, removing all placeholders for this prompt.");
+  const addCondition = (prompt) => {
+    console.log("Processing condition: " + prompt.id);
 
-			// Remove all "no" and "yes" placeholders
-			let frameExtractionRegexNo = new RegExp(
-				String.raw`<<${promptId}=no:.*?>>`,
-				"gs"
-			);
-			let frameExtractionRegexYes = new RegExp(
-				String.raw`<<${promptId}=yes:.*?>>`,
-				"gs"
-			);
+    const promptId = prompt.id;
 
-			setNewTemplate((old) => old.replace(frameExtractionRegexNo, ""));
-			setNewTemplate((old) => old.replace(frameExtractionRegexYes, ""));
-			return;
-		}
+    // Case for undefined (no answer)
+    if (typeof promptAnswers[promptId] == "string") {
+      console.log("No answer, removing all placeholders for this prompt.");
 
-		// Case for "yes" condition
-		if (promptAnswers[promptId]) {
-			try {
-				console.log("Processing positive answer (yes)...");
+      // Remove all "no" and "yes" placeholders
+      let frameExtractionRegexNo = new RegExp(
+        String.raw`<<${promptId}=no:.*?>>`,
+        "gs",
+      );
+      let frameExtractionRegexYes = new RegExp(
+        String.raw`<<${promptId}=yes:.*?>>`,
+        "gs",
+      );
 
-				// Get all matches for "yes" and replace each individually
-				const yesMatches = Array.from(
-					template.matchAll(new RegExp(`<<${promptId}=yes:(.*?)>>`, "gs"))
-				);
+      setNewTemplate((old) => old.replace(frameExtractionRegexNo, ""));
+      setNewTemplate((old) => old.replace(frameExtractionRegexYes, ""));
+      return;
+    }
 
-				yesMatches.forEach((match) => {
-					const extractedString = match[1]; // The captured text in the placeholder
-					const fullMatch = match[0]; // The full placeholder (e.g., "<<promptId=yes:...>>")
+    // Case for "yes" condition
+    if (promptAnswers[promptId]) {
+      try {
+        console.log("Processing positive answer (yes)...");
 
-					setNewTemplate((old) => old.replace(fullMatch, extractedString));
-					setExtractedStringArray((old) => [...old, extractedString]);
-				});
+        // Get all matches for "yes" and replace each individually
+        const yesMatches = Array.from(
+          template.matchAll(new RegExp(`<<${promptId}=yes:(.*?)>>`, "gs")),
+        );
 
-				// Remove all "no" placeholders for this prompt ID
-				let frameExtractionRegexNo = new RegExp(
-					String.raw`<<${promptId}=no:.*?>>`,
-					"gs"
-				);
-				setNewTemplate((old) => old.replace(frameExtractionRegexNo, ""));
-			} catch {
-				// Remove all "no" placeholders if there's an error in processing
-				let frameExtractionRegexNo = new RegExp(
-					String.raw`<<${promptId}=no:.*?>>`,
-					"gs"
-				);
-				setNewTemplate((old) => old.replace(frameExtractionRegexNo, ""));
-			}
-		}
+        yesMatches.forEach((match) => {
+          const extractedString = match[1]; // The captured text in the placeholder
+          const fullMatch = match[0]; // The full placeholder (e.g., "<<promptId=yes:...>>")
 
-		// Case for "no" condition
-		if (!promptAnswers[promptId]) {
-			console.log("Processing negative answer (no)...");
+          setNewTemplate((old) => old.replace(fullMatch, extractedString));
+          setExtractedStringArray((old) => [...old, extractedString]);
+        });
 
-			try {
-				// Get all matches for "no" and replace each individually
-				const noMatches = Array.from(
-					template.matchAll(new RegExp(`<<${promptId}=no:(.*?)>>`, "gs"))
-				);
+        // Remove all "no" placeholders for this prompt ID
+        let frameExtractionRegexNo = new RegExp(
+          String.raw`<<${promptId}=no:.*?>>`,
+          "gs",
+        );
+        setNewTemplate((old) => old.replace(frameExtractionRegexNo, ""));
+      } catch {
+        // Remove all "no" placeholders if there's an error in processing
+        let frameExtractionRegexNo = new RegExp(
+          String.raw`<<${promptId}=no:.*?>>`,
+          "gs",
+        );
+        setNewTemplate((old) => old.replace(frameExtractionRegexNo, ""));
+      }
+    }
 
-				noMatches.forEach((match) => {
-					const extractedString = match[1]; // The captured text in the placeholder
-					const fullMatch = match[0]; // The full placeholder (e.g., "<<promptId=no:...>>")
+    // Case for "no" condition
+    if (!promptAnswers[promptId]) {
+      console.log("Processing negative answer (no)...");
 
-					setNewTemplate((old) => old.replace(fullMatch, extractedString));
-					setExtractedStringArray((old) => [...old, extractedString]);
-				});
+      try {
+        // Get all matches for "no" and replace each individually
+        const noMatches = Array.from(
+          template.matchAll(new RegExp(`<<${promptId}=no:(.*?)>>`, "gs")),
+        );
 
-				// Remove all "yes" placeholders for this prompt ID
-				let frameExtractionRegexYes = new RegExp(
-					String.raw`<<${promptId}=yes:.*?>>`,
-					"gs"
-				);
-				setNewTemplate((old) => old.replace(frameExtractionRegexYes, ""));
-			} catch {
-				// Remove all "yes" placeholders if there's an error in processing
-				let frameExtractionRegexYes = new RegExp(
-					String.raw`<<${promptId}=yes:.*?>>`,
-					"gs"
-				);
-				setNewTemplate((old) => old.replace(frameExtractionRegexYes, ""));
-			}
-		}
-	};
+        noMatches.forEach((match) => {
+          const extractedString = match[1]; // The captured text in the placeholder
+          const fullMatch = match[0]; // The full placeholder (e.g., "<<promptId=no:...>>")
 
-	//OTHER EMAIL LOGIC
-	const [newSubject, setNewSubject] = useState(campaign.subject);
+          setNewTemplate((old) => old.replace(fullMatch, extractedString));
+          setExtractedStringArray((old) => [...old, extractedString]);
+        });
 
-	useEffect(() => {
-		if (1 == 1) {
-			campaign.prompts
-				.filter((prompt) => prompt.answerType == "text")
-				.map((prompt) => {
-					addPrompt(prompt);
-				});
-						campaign.prompts
-							.filter((prompt) => prompt.answerType == "text-multiline")
-							.map((prompt) => {
-								addPrompt(prompt);
-							});
-			campaign.prompts
-				.filter((prompt) => prompt.answerType == "yesno")
-				.map((prompt) => {
-					addCondition(prompt);
-				});
-		}
-	}, [campaign.prompts]);
+        // Remove all "yes" placeholders for this prompt ID
+        let frameExtractionRegexYes = new RegExp(
+          String.raw`<<${promptId}=yes:.*?>>`,
+          "gs",
+        );
+        setNewTemplate((old) => old.replace(frameExtractionRegexYes, ""));
+      } catch {
+        // Remove all "yes" placeholders if there's an error in processing
+        let frameExtractionRegexYes = new RegExp(
+          String.raw`<<${promptId}=yes:.*?>>`,
+          "gs",
+        );
+        setNewTemplate((old) => old.replace(frameExtractionRegexYes, ""));
+      }
+    }
+  };
 
-	const [sent, setSent] = useState(false);
-	const [noClient, setNoClient] = useState(false);
-	const [isSendOpen, setIsSendOpen] = useState(false);
-	const onSendClose = () => {
-		setIsSendOpen(false);
-		setSent(false);
-	};
-	const Mobile = useMediaQuery("(max-width:900px)");
+  //OTHER EMAIL LOGIC
+  const [newSubject, setNewSubject] = useState(campaign.subject);
 
-	//TRACKING LOGIC
-	const [copyIn, setCopyIn] = useState(true);
-	const handleUnBcc = () => {
-		setCopyIn(false);
-	};
+  useEffect(() => {
+    if (1 == 1) {
+      campaign.prompts
+        .filter((prompt) => prompt.answerType == "text")
+        .map((prompt) => {
+          addPrompt(prompt);
+        });
+      campaign.prompts
+        .filter((prompt) => prompt.answerType == "text-multiline")
+        .map((prompt) => {
+          addPrompt(prompt);
+        });
+      campaign.prompts
+        .filter((prompt) => prompt.answerType == "yesno")
+        .map((prompt) => {
+          addCondition(prompt);
+        });
+    }
+  }, [campaign.prompts]);
 
-	const [optIn, setOptIn] = useState(undefined);
-	const [gdprPrompt, setGdprPrompt] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [noClient, setNoClient] = useState(false);
+  const [isSendOpen, setIsSendOpen] = useState(false);
+  const onSendClose = () => {
+    setIsSendOpen(false);
+    setSent(false);
+  };
+  const Mobile = useMediaQuery("(max-width:900px)");
 
-	const handleSendClicked = () => {
-		setGdprPrompt(true);
-	};
+  //TRACKING LOGIC
+  const [copyIn, setCopyIn] = useState(true);
+  const handleUnBcc = () => {
+    setCopyIn(false);
+  };
 
-	const editableDivProps = useMemo(
-		() => ({
-			label: campaign.channel === "email" ? "Body" : "Your Tweet",
-			body: newTemplate,
-			onBodyChange: setNewTemplate,
-			substrings: [
-				...Object.values(promptAnswers),
-				...extractedStringArray,
-			].filter((str) => str !== String),
-			promptsChanged,
-		}),
-		[
-			campaign.channel,
-			newTemplate,
-			promptAnswers,
-			extractedStringArray,
-			promptsChanged,
-		]
-	);
+  const [optIn, setOptIn] = useState(undefined);
+  const [gdprPrompt, setGdprPrompt] = useState(false);
 
-	if (Loading) {
-		return <></>;
-	}
+  const handleSendClicked = () => {
+    setGdprPrompt(true);
+  };
 
-	if (errorMsg !== "") {
-		return (
-			<>
-				Sorry - something has gone wrong while looking up your representative's
-				data. If you could let us know your postcode, we'll try to get it fixed!
-			</>
-		);
-	}
+  const editableDivProps = useMemo(
+    () => ({
+      label: campaign.channel === "email" ? "Body" : "Your Tweet",
+      body: newTemplate,
+      onBodyChange: setNewTemplate,
+      substrings: [
+        ...Object.values(promptAnswers),
+        ...extractedStringArray,
+      ].filter((str) => str !== String),
+      promptsChanged,
+    }),
+    [
+      campaign.channel,
+      newTemplate,
+      promptAnswers,
+      extractedStringArray,
+      promptsChanged,
+    ],
+  );
 
-	return (
-		<div>
-			{campaign.channel == "email" && (
-				<>
-					<Box
-						sx={{
-							position: "relative",
-							marginTop: 2,
-							marginBottom: "14px",
+  if (Loading) {
+    return <></>;
+  }
 
-							width: "100%",
-							"&:focus-within .paperBorder": {
-								outline: "2px solid #3f51b5", // Color for focus state
-								outlineOffset: "-2px",
-							},
-						}}
-					>
-						<label
-							style={{
-								fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  if (errorMsg !== "") {
+    return (
+      <>
+        Sorry - something has gone wrong while looking up your representative's
+        data. If you could let us know your postcode, we'll try to get it fixed!
+      </>
+    );
+  }
 
-								position: "absolute",
-								top: "-9px",
-								left: "8px",
-								fontSize: "0.78rem",
-								fontWeight: "320",
-								color: "rgba(0,0,0,0.6)",
-								backgroundColor: "rgba(246, 243, 246, 1)",
-								padding: "0 5px",
-								transition: "top 0.2s, font-size 0.2s, color 0.2s",
-							}}
-						>
-							To
-						</label>
+  return (
+    <div>
+      {campaign.channel == "email" && (
+        <>
+          <Box
+            sx={{
+              position: "relative",
+              marginTop: 2,
+              marginBottom: "14px",
 
-						<Paper
-							sx={{
-								...TextFieldStyle,
-								margin: "1px 0 7px 0",
-								padding: "5px",
-								paddingY: "15px",
-								border: "1px solid lightgray",
-							}}
-						>
-							{messaging.map((msp) => (
-								<Chip
-									label={msp.name + " - " + msp.party}
-									variant="outlined"
-									sx={{ margin: "2px" }}
-									onClick={() => {
-										setMessaging((prev) =>
-											prev.filter((prevTarget) => prevTarget.name !== msp.name)
-										);
-										setNotMessaging((prev) => [...prev, msp]);
-									}}
-									onDelete={() => {
-										setMessaging((prev) =>
-											prev.filter((prevTarget) => prevTarget.name !== msp.name)
-										);
-										setNotMessaging((prev) => [...prev, msp]);
-									}}
-								></Chip>
-							))}
+              width: "100%",
+              "&:focus-within .paperBorder": {
+                outline: "2px solid #3f51b5", // Color for focus state
+                outlineOffset: "-2px",
+              },
+            }}
+          >
+            <label
+              style={{
+                fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
 
-							{messaging.length == 0 && (
-								<div style={{ color: "red", marginLeft: "10px" }}>
-									You need to pick at least one recipient!
-								</div>
-							)}
-						</Paper>
+                position: "absolute",
+                top: "-9px",
+                left: "8px",
+                fontSize: "0.78rem",
+                fontWeight: "320",
+                color: "rgba(0,0,0,0.6)",
+                backgroundColor: "rgba(246, 243, 246, 1)",
+                padding: "0 5px",
+                transition: "top 0.2s, font-size 0.2s, color 0.2s",
+              }}
+            >
+              To
+            </label>
 
-						{notMessaging.length > 0 && (
-							<>
-								<div
-									style={{
-										marginBottom: "5px",
-									}}
-								>
-									<Accordion
-										className="notMessaging"
-										sx={{
-											backgroundColor: "rgba(246, 243, 246, 1)",
-											borderRadius: "5px !important",
-										}}
-									>
-										<AccordionSummary
-											expandIcon={<ExpandMoreIcon />}
-											aria-controls="panel1a-content"
-											id="details"
-											sx={{
-												backgroundColor: "rgba(246, 243, 246, 1)",
-												borderRadius: "5px 5px 0 0",
-												border: "1px solid lightgray",
-												borderBottom: "0",
-											}}
-										>
-											<div
-												style={{
-													color: "black",
-												}}
-											>
-												You aren't messaging:
-											</div>
-										</AccordionSummary>
-										<AccordionDetails
-											sx={{
-												paddingY: "10px",
-												paddingX: "10px",
-												marginTop: "-10px",
-												backgroundColor: "rgba(246, 243, 246, 1)",
-												borderRadius: "0 0 5px 5px",
-												border: "1px solid lightgray",
-											}}
-										>
-											<div style={{ marginLeft: "5px" }}>
-												These are the recipients not included in your message.
-												If you'd like to include them, just tap their name.
-											</div>
-											<br />
-											{notMessaging.map((msp) => (
-												<Chip
-													size="small"
-													label={msp.name + " - " + msp.party}
-													variant="outlined"
-													sx={{ backgroundColor: "white", margin: "2px" }}
-													deleteIcon={
-														<AddCircleIcon style={{ fontSize: "large" }} />
-													}
-													onDelete={() => {
-														setNotMessaging((prev) =>
-															prev.filter(
-																(prevTarget) => prevTarget.name !== msp.name
-															)
-														);
-														setMessaging((prev) => [...prev, msp]);
-													}}
-													onClick={() => {
-														setNotMessaging((prev) =>
-															prev.filter(
-																(prevTarget) => prevTarget.name !== msp.name
-															)
-														);
-														setMessaging((prev) => [...prev, msp]);
-													}}
-												></Chip>
-											))}
-										</AccordionDetails>
-									</Accordion>
-								</div>
-							</>
-						)}
-					</Box>
-					<TextField
-						label="Subject Line"
-						id="subject"
-						fullWidth
-						value={newSubject}
-						sx={TextFieldStyle}
-						onChange={(e) => setNewSubject(e.target.value)}
-					/>
-				</>
-			)}
+            <Paper
+              sx={{
+                ...TextFieldStyle,
+                margin: "1px 0 7px 0",
+                padding: "5px",
+                paddingY: "15px",
+                border: "1px solid lightgray",
+              }}
+            >
+              {messaging.map((msp) => (
+                <Chip
+                  label={msp.name + " - " + msp.party}
+                  variant="outlined"
+                  sx={{ margin: "2px" }}
+                  onClick={() => {
+                    setMessaging((prev) =>
+                      prev.filter((prevTarget) => prevTarget.name !== msp.name),
+                    );
+                    setNotMessaging((prev) => [...prev, msp]);
+                  }}
+                  onDelete={() => {
+                    setMessaging((prev) =>
+                      prev.filter((prevTarget) => prevTarget.name !== msp.name),
+                    );
+                    setNotMessaging((prev) => [...prev, msp]);
+                  }}
+                ></Chip>
+              ))}
 
-			{/* BCCing */}
-			<Box
-				sx={{
-					position: "relative",
-					marginTop: 2,
-					marginBottom: "14px",
+              {messaging.length == 0 && (
+                <div style={{ color: "red", marginLeft: "10px" }}>
+                  You need to pick at least one recipient!
+                </div>
+              )}
+            </Paper>
 
-					width: "100%",
-					"&:focus-within .paperBorder": {
-						outline: "2px solid #3f51b5", // Color for focus state
-						outlineOffset: "-2px",
-					},
-				}}
-			>
-				<label
-					style={{
-						fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+            {notMessaging.length > 0 && (
+              <>
+                <div
+                  style={{
+                    marginBottom: "5px",
+                  }}
+                >
+                  <Accordion
+                    className="notMessaging"
+                    sx={{
+                      backgroundColor: "rgba(246, 243, 246, 1)",
+                      borderRadius: "5px !important",
+                    }}
+                  >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="details"
+                      sx={{
+                        backgroundColor: "rgba(246, 243, 246, 1)",
+                        borderRadius: "5px 5px 0 0",
+                        border: "1px solid lightgray",
+                        borderBottom: "0",
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: "black",
+                        }}
+                      >
+                        You aren't messaging:
+                      </div>
+                    </AccordionSummary>
+                    <AccordionDetails
+                      sx={{
+                        paddingY: "10px",
+                        paddingX: "10px",
+                        marginTop: "-10px",
+                        backgroundColor: "rgba(246, 243, 246, 1)",
+                        borderRadius: "0 0 5px 5px",
+                        border: "1px solid lightgray",
+                      }}
+                    >
+                      <div style={{ marginLeft: "5px" }}>
+                        These are the recipients not included in your message.
+                        If you'd like to include them, just tap their name.
+                      </div>
+                      <br />
+                      {notMessaging.map((msp) => (
+                        <Chip
+                          size="small"
+                          label={msp.name + " - " + msp.party}
+                          variant="outlined"
+                          sx={{ backgroundColor: "white", margin: "2px" }}
+                          deleteIcon={
+                            <AddCircleIcon style={{ fontSize: "large" }} />
+                          }
+                          onDelete={() => {
+                            setNotMessaging((prev) =>
+                              prev.filter(
+                                (prevTarget) => prevTarget.name !== msp.name,
+                              ),
+                            );
+                            setMessaging((prev) => [...prev, msp]);
+                          }}
+                          onClick={() => {
+                            setNotMessaging((prev) =>
+                              prev.filter(
+                                (prevTarget) => prevTarget.name !== msp.name,
+                              ),
+                            );
+                            setMessaging((prev) => [...prev, msp]);
+                          }}
+                        ></Chip>
+                      ))}
+                    </AccordionDetails>
+                  </Accordion>
+                </div>
+              </>
+            )}
+          </Box>
+          <TextField
+            label="Subject Line"
+            id="subject"
+            fullWidth
+            value={newSubject}
+            sx={TextFieldStyle}
+            onChange={(e) => setNewSubject(e.target.value)}
+          />
+        </>
+      )}
 
-						position: "absolute",
-						top: "-9px",
-						left: "8px",
-						fontSize: "0.78rem",
-						fontWeight: "320",
-						color: "rgba(0,0,0,0.6)",
-						backgroundColor: "rgba(246, 243, 246, 1)",
-						padding: "0 5px",
-						transition: "top 0.2s, font-size 0.2s, color 0.2s",
-					}}
-				>
-					BCC
-				</label>
+      {/* BCCing */}
+      <Box
+        sx={{
+          position: "relative",
+          marginTop: 2,
+          marginBottom: "14px",
 
-				<Paper
-					sx={{
-						...TextFieldStyle,
-						margin: "1px 0 7px 0",
-						padding: "5px",
-						paddingY: "15px",
-						border: "1px solid lightgray",
-					}}
-				>
-					{copyIn ? (
-						<Chip
-							key={"scot4decrim"}
-							label={`Scotland for Decrim`}
-							variant="outlined"
-							sx={{ margin: "2px" }}
-							onClick={() => {
-								handleUnBcc();
-							}}
-							onDelete={() => {
-								handleUnBcc();
-							}}
-						/>
-					) : (
-						<span
-							style={{
-								marginLeft: "10px",
-								display: "inline-block",
-								fontStyle: "italic",
-							}}
-						>
-							Are you sure? By copying in Scotland for Decrim, your story can
-							help shape our campaign.{" "}
-							<span
-								onClick={() => setCopyIn(true)}
-								style={{ cursor: "pointer" }}
-							>
-								<u>Add Scotland for Decrim back into BCC.</u>
-							</span>
-						</span>
-					)}
-				</Paper>
-			</Box>
+          width: "100%",
+          "&:focus-within .paperBorder": {
+            outline: "2px solid #3f51b5", // Color for focus state
+            outlineOffset: "-2px",
+          },
+        }}
+      >
+        <label
+          style={{
+            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
 
-			<div style={{ position: "relative" }}>
-				<div style={{}}>
-					<EditableDiv {...editableDivProps} />
-				</div>
-			</div>
-			{Object.values(promptAnswers).filter((str) => str !== "noOptionSelected")
-				.length > 0 && (
-				<div
-					style={{
-						marginTop: "-10px",
-						marginBottom: "10px",
-						marginLeft: "auto",
-						marginRight: "auto",
-						width: "90%",
-						fontSize: "small",
-						textAlign: "center",
-					}}
-				>
-					<em>
-						Your answers have been incorporated into the template message,
-						highlighted for you in yellow - check to make sure they still look
-						okay!{" "}
-					</em>
-				</div>
-			)}
-			<TextField
-				id="template"
-				fullWidth
-				label={campaign.channel == "email" ? "Body" : "Your Tweet"}
-				value={newTemplate || ""}
-				multiline
-				sx={{ ...TextFieldStyle, opacity: 1, display: "none" }}
-				rows={10}
-				onChange={(e) => setNewTemplate(e.target.value)}
-				inputProps={
-					campaign.channel == "twitter" && {
-						maxLength: campaign.channel == "twitter" && 280,
-					}
-				}
-			/>
+            position: "absolute",
+            top: "-9px",
+            left: "8px",
+            fontSize: "0.78rem",
+            fontWeight: "320",
+            color: "rgba(0,0,0,0.6)",
+            backgroundColor: "rgba(246, 243, 246, 1)",
+            padding: "0 5px",
+            transition: "top 0.2s, font-size 0.2s, color 0.2s",
+          }}
+        >
+          BCC
+        </label>
 
-			{/* DEPRECATED 
+        <Paper
+          sx={{
+            ...TextFieldStyle,
+            margin: "1px 0 7px 0",
+            padding: "5px",
+            paddingY: "15px",
+            border: "1px solid lightgray",
+          }}
+        >
+          {copyIn ? (
+            <Chip
+              key={"scot4decrim"}
+              label={`Scotland for Decrim`}
+              variant="outlined"
+              sx={{ margin: "2px" }}
+              onClick={() => {
+                handleUnBcc();
+              }}
+              onDelete={() => {
+                handleUnBcc();
+              }}
+            />
+          ) : (
+            <span
+              style={{
+                marginLeft: "10px",
+                display: "inline-block",
+                fontStyle: "italic",
+              }}
+            >
+              Are you sure? By copying in Scotland for Decrim, your story can
+              help shape our campaign.{" "}
+              <span
+                onClick={() => setCopyIn(true)}
+                style={{ cursor: "pointer" }}
+              >
+                <u>Add Scotland for Decrim back into BCC.</u>
+              </span>
+            </span>
+          )}
+        </Paper>
+      </Box>
+
+      <div style={{ position: "relative" }}>
+        <div style={{}}>
+          <EditableDiv {...editableDivProps} />
+        </div>
+      </div>
+      {Object.values(promptAnswers).filter((str) => str !== "noOptionSelected")
+        .length > 0 && (
+        <div
+          style={{
+            marginTop: "-10px",
+            marginBottom: "10px",
+            marginLeft: "auto",
+            marginRight: "auto",
+            width: "90%",
+            fontSize: "small",
+            textAlign: "center",
+          }}
+        >
+          <em>
+            Your answers have been incorporated into the template message,
+            highlighted for you in yellow - check to make sure they still look
+            okay!{" "}
+          </em>
+        </div>
+      )}
+      <TextField
+        id="template"
+        fullWidth
+        label={campaign.channel == "email" ? "Body" : "Your Tweet"}
+        value={newTemplate || ""}
+        multiline
+        sx={{ ...TextFieldStyle, opacity: 1, display: "none" }}
+        rows={10}
+        onChange={(e) => setNewTemplate(e.target.value)}
+        inputProps={
+          campaign.channel == "twitter" && {
+            maxLength: campaign.channel == "twitter" && 280,
+          }
+        }
+      />
+
+      {/* DEPRECATED 
 			<FormControlLabel
 				sx={{ marginTop: "-10px", display: campaign.bcc ? "" : "none" }}
 				control={
@@ -650,122 +656,122 @@ const Message = ({
 			/>
 			*/}
 
-			<Box
-				sx={{
-					position: "relative",
-					marginTop: 2,
-					marginBottom: "14px",
-					border: optIn == undefined && gdprPrompt && "1px solid red",
-					padding: optIn == undefined && gdprPrompt ? "4px" : 0,
-					width: "100%",
-					"&:focus-within .paperBorder": {
-						outline: "2px solid #3f51b5", // Color for focus state
-						outlineOffset: "-2px",
-					},
-				}}
-			>
-				<div style={{ margin: "10px 0" }}>
-					<FormControl component="fieldset">
-						<div
-							style={{
-								marginTop: "-10px",
-								fontSize: "small",
-								//textAlign: "center",
-							}}
-						>
-							{OPTIN_TEXT}
-						</div>
-						<RadioGroup
-							row
-							value={optIn ? "yes" : optIn == false && "no"}
-							onChange={(e) => setOptIn(e.target.value === "yes")}
-						>
-							<FormControlLabel
-								value="yes"
-								control={<Radio style={CheckBoxStyle} />}
-								label="Yes"
-							/>
-							<FormControlLabel
-								value="no"
-								control={<Radio style={CheckBoxStyle} />}
-								label="No"
-							/>
-						</RadioGroup>
-					</FormControl>
-				</div>
-				{optIn == undefined && gdprPrompt && (
-					<div
-						style={{
-							marginTop: "-10px",
-							fontSize: "small",
-							//textAlign: "center",
-							color: "red",
-						}}
-					>
-						You must select 'yes' or 'no' here.
-					</div>
-				)}
-			</Box>
+      <Box
+        sx={{
+          position: "relative",
+          marginTop: 2,
+          marginBottom: "14px",
+          border: optIn == undefined && gdprPrompt && "1px solid red",
+          padding: optIn == undefined && gdprPrompt ? "4px" : 0,
+          width: "100%",
+          "&:focus-within .paperBorder": {
+            outline: "2px solid #3f51b5", // Color for focus state
+            outlineOffset: "-2px",
+          },
+        }}
+      >
+        <div style={{ margin: "10px 0" }}>
+          <FormControl component="fieldset">
+            <div
+              style={{
+                marginTop: "-10px",
+                fontSize: "small",
+                //textAlign: "center",
+              }}
+            >
+              {OPTIN_TEXT}
+            </div>
+            <RadioGroup
+              row
+              value={optIn ? "yes" : optIn == false && "no"}
+              onChange={(e) => setOptIn(e.target.value === "yes")}
+            >
+              <FormControlLabel
+                value="yes"
+                control={<Radio style={CheckBoxStyle} />}
+                label="Yes"
+              />
+              <FormControlLabel
+                value="no"
+                control={<Radio style={CheckBoxStyle} />}
+                label="No"
+              />
+            </RadioGroup>
+          </FormControl>
+        </div>
+        {optIn == undefined && gdprPrompt && (
+          <div
+            style={{
+              marginTop: "-10px",
+              fontSize: "small",
+              //textAlign: "center",
+              color: "red",
+            }}
+          >
+            You must select 'yes' or 'no' here.
+          </div>
+        )}
+      </Box>
 
-			<div
-				style={{
-					display: "flex",
-					width: "100%",
-					justifyContent: "space-between",
-				}}
-			>
-				<Button sx={BtnStyleSmall} onClick={() => setStage((old) => old - 1)}>
-					Back
-				</Button>
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          justifyContent: "space-between",
+        }}
+      >
+        <Button sx={BtnStyleSmall} onClick={() => setStage((old) => old - 1)}>
+          Back
+        </Button>
 
-				<Button
-					sx={BtnStyleSmall}
-					onClick={() => {
-						if (optIn == undefined) {
-							handleSendClicked();
-							return;
-						} else {
-							setIsSendOpen(true);
+        <Button
+          sx={BtnStyleSmall}
+          onClick={() => {
+            if (optIn == undefined) {
+              handleSendClicked();
+              return;
+            } else {
+              setIsSendOpen(true);
 
-							optIn &&
-								submitter({
-									type: "submission",
-									site: "scot4decrim",
-									campaignId: "Scotland4Decrim",
-									contactDeets: {
-										email: userEmail,
-										postcode: postcode,
-									},
-									testimonial: "blank",
-								});
-						}
-					}}
-				>
-					Send
-				</Button>
-			</div>
+              optIn &&
+                submitter({
+                  type: "submission",
+                  site: "scot4decrim",
+                  campaignId: "Scotland4Decrim",
+                  contactDeets: {
+                    email: userEmail,
+                    postcode: postcode,
+                  },
+                  testimonial: "blank",
+                });
+            }
+          }}
+        >
+          Send
+        </Button>
+      </div>
 
-			<SendModal
-				isOpen={isSendOpen}
-				onClose={() => {
-					onSendClose();
-					setNoClient(false);
-				}}
-				noClient={noClient}
-				setNoClient={setNoClient}
-				messaging={messaging}
-				bcc={campaign.bcc}
-				campaign={campaign}
-				newSubject={newSubject}
-				newTemplate={newTemplate}
-				Mobile={Mobile}
-				sent={sent}
-				emailClient={emailClient}
-				setSent={setSent}
-				copyIn={copyIn}
-			/>
-		</div>
-	);
+      <SendModal
+        isOpen={isSendOpen}
+        onClose={() => {
+          onSendClose();
+          setNoClient(false);
+        }}
+        noClient={noClient}
+        setNoClient={setNoClient}
+        messaging={messaging}
+        bcc={campaign.bcc}
+        campaign={campaign}
+        newSubject={newSubject}
+        newTemplate={newTemplate}
+        Mobile={Mobile}
+        sent={sent}
+        emailClient={emailClient}
+        setSent={setSent}
+        copyIn={copyIn}
+      />
+    </div>
+  );
 };
 
 export default Message;
